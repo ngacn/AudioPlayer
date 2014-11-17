@@ -12,9 +12,9 @@ po菊好厉害 --dawn
 sudo tar -C /usr/local -xzf go1.3.3.linux-amd64.tar.gz 
 ```
 
-2.创建一个workspace， 字节替换掉$HOME  
+2.创建一个workspace， 自己替换掉$HOME  
 ```
-mkdir HOME/go  
+mkdir $HOME/go  
 ```
 
 3.设置GOPATH， 如果只是临时用就不要写到.profile
@@ -26,12 +26,12 @@ source ~/.profile
  
 4.创建workspace的目录结构
 ```  
-mkdir GOPATH/{src,pkg,bin}  
+mkdir $GOPATH/{src,pkg,bin}  
 ```
  
 5.clone项目
 ```  
-cd GOPATH/src  
+cd $GOPATH/src  
 git clone git@github.com:ngacn/AudioPlayer.git warpten
 ```  
 注意项目名需要是wrapten， 而不是AudioPlayer  
