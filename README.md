@@ -48,7 +48,7 @@ git clone git@github.com:ngacn/AudioPlayer.git warpten
     ├── server  
     │    └── server.go  
     └── warpten  
-    └── warpten.go  
+         └── warpten.go  
 ```  
 6.编译
 ```  
