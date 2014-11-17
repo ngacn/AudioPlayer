@@ -8,43 +8,56 @@ po菊好厉害 --dawn
 **Linux** 
  
 1.官方下载go1.3.3.linux-amd64.tar.gz， 解压到/usr/local 
+```
 sudo tar -C /usr/local -xzf go1.3.3.linux-amd64.tar.gz 
- 
+```
+
 2.创建一个workspace， 字节替换掉$HOME  
+```
 mkdir HOME/go  
- 
-3.设置GOPATH， 如果只是临时用就不要写到.profile  
+```
+
+3.设置GOPATH， 如果只是临时用就不要写到.profile
+``` 
 echo "export GOPATH=\$HOME/go" >> ~/.profile  
 echo "export PATH=\$PATH:/usr/local/go/bin:\$GOPATH/bin" >> ~/.profile  
 source ~/.profile  
+```
  
-4.创建workspace的目录结构  
+4.创建workspace的目录结构
+```  
 mkdir GOPATH/{src,pkg,bin}  
+```
  
-5.clone项目  
+5.clone项目
+```  
 cd GOPATH/src  
-git clone git@github.com:ngacn/AudioPlayer.git warpten  
+git clone git@github.com:ngacn/AudioPlayer.git warpten
+```  
 注意项目名需要是wrapten， 而不是AudioPlayer  
  
 目录结构如下：  
 ycs@linux-afno:~/go> tree .  
+<html>
 .  
 ├── bin  
 ├── pkg  
 └── src  
-    └── warpten  
-        ├── client  
-        │   └── client.go  
-        ├── README.md  
-        ├── server  
-        │   └── server.go  
-        └── warpten  
-            └── warpten.go  
-  
-6.编译  
+&nbsp;&nbsp;└── warpten  
+&nbsp;&nbsp;├── client  
+&nbsp;&nbsp;│&nbsp;&nbsp;└── client.go  
+&nbsp;&nbsp;├── README.md  
+&nbsp;&nbsp;├── server  
+&nbsp;&nbsp;│&nbsp;&nbsp;└── server.go  
+&nbsp;&nbsp;└── warpten  
+&nbsp;&nbsp;└── warpten.go  
+<html>
+6.编译
+```  
 go install warpten/warpten  
 go install warpten/client  
- 
+ ```
+
 7.使用  
   
 运行warpten开启服务器  
