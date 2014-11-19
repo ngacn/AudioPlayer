@@ -32,7 +32,7 @@ mkdir $GOPATH/{src,pkg,bin}
 5.clone项目
 ```  
 cd $GOPATH/src  
-git clone git@github.com:ngacn/AudioPlayer.git warpten
+git clone https://github.com/ngacn/AudioPlayer.git warpten
 ```  
 注意项目名需要是wrapten， 而不是AudioPlayer  
  
@@ -41,25 +41,81 @@ git clone git@github.com:ngacn/AudioPlayer.git warpten
 ├── bin  
 ├── pkg  
 └── src  
-    └── warpten  
-    ├── client  
-    │    └── client.go  
-    ├── README.md  
-    ├── server  
-    │    └── server.go  
-    └── warpten  
-         └── warpten.go  
+     └── warpten  
+          ├── README.md  
+          ├── server  
+          │    └── server.go  
+          └── warpten  
+               └── warpten.go  
 ```  
 6.编译
 ```  
 go install warpten/warpten  
-go install warpten/client  
- ```
+```
 
 7.使用  
   
-运行warpten开启服务器  
-运行client -send-cmd="PLAY"命令发送给服务器并显示  
+开启服务器  
+```  
+warpten -d -t &  
+```
+发送给服务器并显示  
+```  
+warpten -t -s="PLAY"  
+```
  
 **Max OS X**  
+
+1.官方下载go1.3.3.darwin-amd64-osx10.8.pkg， 双击安装  
+
+2.创建一个workspace， 自己替换掉$HOME  
+```
+mkdir $HOME/go  
+```
+
+3.设置GOPATH
+``` 
+export GOPATH=$HOME/go  
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin  
+```
+ 
+4.创建workspace的目录结构
+```  
+mkdir $GOPATH/{src,pkg,bin}  
+```
+ 
+5.clone项目
+```  
+cd $GOPATH/src  
+git clone https://github.com/ngacn/AudioPlayer.git warpten
+```  
+注意项目名需要是wrapten， 而不是AudioPlayer  
+ 
+目录结构如下：  
+```  
+├── bin  
+├── pkg  
+└── src  
+     └── warpten  
+          ├── README.md  
+          ├── server  
+          │    └── server.go  
+          └── warpten  
+               └── warpten.go  
+```  
+6.编译
+```  
+go install warpten/warpten  
+```
+
+7.使用  
+  
+开启服务器  
+```  
+warpten -d -t &  
+```
+发送给服务器并显示  
+```  
+warpten -t -s="PLAY"  
+```
 **Win**  
