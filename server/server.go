@@ -1,7 +1,6 @@
 package server
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"net/http"
@@ -20,6 +19,7 @@ func createRouter() (*http.ServeMux, error) {
 		"POST":   {},
 		"DELETE": {},
 	}
+
 	for method, routes := range m {
 		for route, fct := range routes {
 			localRoute := route
@@ -35,14 +35,14 @@ func createRouter() (*http.ServeMux, error) {
 
 func getVersion(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "yoyoyoyo")
+	fmt.Fprintf(w, "0.0")
 	return nil
 }
 
 func makeHttpHandler(localMethod string, localRoute string, handlerFunc HttpApiFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := handlerFunc(w, r); err != nil {
-			fmt.Println("WarptenSrv: handlerFunc failed.")
+			fmt.Println("WarptenSrv: Handler for %s %s returned error: %s", localMethod, localRoute, err)
 		}
 	}
 }

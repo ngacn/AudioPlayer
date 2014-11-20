@@ -3,21 +3,20 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"strings"
+	"warpten/client"
 	"warpten/server"
 )
 
 func main() {
 	const (
 		DEFAULTHTTPHOST   = "127.0.0.1:7478"
-		DEFAULTUNIXSOCKET = "/var/run/warpten.sock"
+		DEFAULTUNIXSOCKET = "/tmp/warpten.sock"
 	)
 
 	var (
 		flDaemon = flag.Bool("d", false, "Enable daemon mode")
 		flTcp    = flag.Bool("t", false, "Enable the TCP socket")
-		flCmd    = flag.String("s", "PLAY", "Send a command to server")
 	)
 
 	flag.Parse()
@@ -39,10 +38,8 @@ func main() {
 		return
 	}
 
-	conn, err := net.Dial(protoAddrParts[0], protoAddrParts[1])
-	if err != nil {
-		fmt.Println("WarptenCli: Couldn't connect to server")
-		return
+	var cli *client.WarptenCli = client.NewWarptenCli(protoAddrParts[0], protoAddrParts[1])
+	if err := cli.Cmd(flag.Args()...); err != nil {
+		fmt.Println("WarptenCli: =>", err)
 	}
-	fmt.Fprintln(conn, *flCmd)
 }
