@@ -8,7 +8,7 @@ func TestPlaylist(t *testing.T) {
 		track2 string = "/home/foo/Music/Rurutia/2.mp3"
 	)
 
-	pl := New("TestPlaylist")
+	pl := New()
 	pl.Append(track1, track2)
 
 	if l := pl.Len(); l != 2 {

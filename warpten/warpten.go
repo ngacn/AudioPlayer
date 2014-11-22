@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"warpten/client"
+	"warpten/player"
 	"warpten/server"
 )
 
@@ -29,6 +30,7 @@ func main() {
 	protoAddrParts := strings.SplitN(defaultHost, "://", 2)
 
 	if *flDaemon {
+		player.Init()
 		srv, err := server.NewWarptenSrv(protoAddrParts[0], protoAddrParts[1])
 		if err != nil {
 			fmt.Println("WarptenSrv: Couldn't create WarptenSrv")

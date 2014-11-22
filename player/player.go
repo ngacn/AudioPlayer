@@ -10,10 +10,15 @@ var (
 	ErrPlaylistNotExists = errors.New("Playlist not exists")
 )
 
+var version string
 var playlists map[string]*playlist.Playlist
 
-func Playlists() *map[string]*playlist.Playlist {
-	return &playlists
+func Version() string {
+	return version
+}
+
+func Playlists() map[string]*playlist.Playlist {
+	return playlists
 }
 
 func Playlist(name string) (*playlist.Playlist, bool) {
@@ -25,7 +30,7 @@ func NewPlaylist(name string) error {
 	if _, exists := playlists[name]; exists {
 		return ErrPlaylistExists
 	}
-	playlists[name] = playlist.New(name)
+	playlists[name] = playlist.New()
 	return nil
 }
 
@@ -39,8 +44,9 @@ func DelPlaylist(name string) error {
 	}
 }
 
-func init() {
+func Init() {
 	playlists = make(map[string]*playlist.Playlist)
-	defaultPlaylist := playlist.New("Default")
+	defaultPlaylist := playlist.New()
 	playlists["Default"] = defaultPlaylist
+	version = "0.0"
 }

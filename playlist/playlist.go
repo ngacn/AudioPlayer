@@ -8,17 +8,12 @@ var (
 	ErrIndexOutOfRange = errors.New("Track index out of range")
 )
 
-type Playlists struct {
-	playlists []*Playlist
-}
-
 type Playlist struct {
-	name   string
 	tracks []string
 }
 
-func New(name string) *Playlist {
-	return &Playlist{name: name}
+func New() *Playlist {
+	return new(Playlist)
 }
 
 func (pl *Playlist) Track(n int) (string, error) {

@@ -20,3 +20,13 @@ func (cli *WarptenCli) CmdVersion(args ...string) error {
 	fmt.Fprintf(os.Stdout, "Warpten version: %s\n", body)
 	return nil
 }
+
+func (cli *WarptenCli) CmdPlaylists(args ...string) error {
+	body, _, err := readBody(cli.call("GET", "/playlists", nil))
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stdout, "Warpten playlists: %s\n", body)
+	return nil
+
+}

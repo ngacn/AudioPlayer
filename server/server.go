@@ -1,11 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"syscall"
+	"warpten/player"
 )
 
 type HttpApiFunc func(w http.ResponseWriter, r *http.Request) error
@@ -14,7 +16,8 @@ func createRouter() (*http.ServeMux, error) {
 	r := http.NewServeMux()
 	m := map[string]map[string]HttpApiFunc{
 		"GET": {
-			"/version": getVersion,
+			"/version":   getVersion,
+			"/playlists": getPlaylists,
 		},
 		"POST":   {},
 		"DELETE": {},
@@ -35,7 +38,18 @@ func createRouter() (*http.ServeMux, error) {
 
 func getVersion(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "0.0")
+	fmt.Fprintf(w, player.Version())
+	return nil
+}
+
+func getPlaylists(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	pls := player.Playlists()
+	b, err := json.Marshal(pls)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
 	return nil
 }
 
