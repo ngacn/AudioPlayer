@@ -1,9 +1,11 @@
 package client
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"time"
@@ -56,6 +58,16 @@ func (cli *WarptenCli) Cmd(args ...string) error {
 		return method(args[1:]...)
 	}
 	return cli.CmdHelp()
+}
+
+func (cli *WarptenCli) Subcmd(name, options, signature, description string) *flag.FlagSet {
+	flags := flag.NewFlagSet(name, flag.ContinueOnError)
+	flags.Usage = func() {
+		fmt.Fprintf(os.Stderr, "\nUsage: warpten %s %s%s\n\n%s\n\n", name, options, signature, description)
+		flags.PrintDefaults()
+		os.Exit(2)
+	}
+	return flags
 }
 
 func NewWarptenCli(proto, addr string) *WarptenCli {

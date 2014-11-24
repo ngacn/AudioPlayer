@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"syscall"
 	"warpten/player"
 )
@@ -18,9 +19,14 @@ func createRouter() (*http.ServeMux, error) {
 		"GET": {
 			"/version":   getVersion,
 			"/playlists": getPlaylists,
+			"/playlist":  getPlaylist,
 		},
-		"POST":   {},
-		"DELETE": {},
+		"POST": {
+			"/playlist/new": newPlaylist,
+		},
+		"DELETE": {
+			"/playlist/del": delPlaylist,
+		},
 	}
 
 	for method, routes := range m {
@@ -50,6 +56,52 @@ func getPlaylists(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	w.Write(b)
+	return nil
+}
+
+func getPlaylist(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	name := r.Form.Get("name")
+	if pl, exists := player.Playlist(name); exists {
+		b, err := json.Marshal(pl)
+		if err != nil {
+			return err
+		}
+		w.Write(b)
+		return nil
+	}
+	fmt.Fprintf(w, "nil")
+	return nil
+}
+
+func newPlaylist(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	name := r.Form.Get("name")
+	if err := player.NewPlaylist(name); err != nil {
+		fmt.Fprintf(w, name+" exists")
+		return nil
+	}
+	fmt.Fprintf(w, "success")
+	return nil
+}
+
+func delPlaylist(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	name := r.Form.Get("name")
+	if err := player.DelPlaylist(name); err != nil {
+		fmt.Fprintf(w, name+" not exists")
+		return nil
+	}
+	fmt.Fprintf(w, "success")
 	return nil
 }
 
@@ -125,4 +177,14 @@ func setupUnixHttp(addr string) (*HttpServer, error) {
 	}
 
 	return &HttpServer{&http.Server{Addr: addr, Handler: r}, l}, nil
+}
+
+func parseForm(r *http.Request) error {
+	if r == nil {
+		return nil
+	}
+	if err := r.ParseForm(); err != nil && !strings.HasPrefix(err.Error(), "mime:") {
+		return err
+	}
+	return nil
 }
