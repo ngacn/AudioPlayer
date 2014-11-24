@@ -69,3 +69,29 @@ warpten version
 或  
 warpten -t version 使用Tcp socket  
 ```
+
+```
+ycs@linux-afno:~/go> warpten version
+Warpten version: 0.0  
+
+ycs@linux-afno:~/go> warpten playlists
+Warpten playlists: {"Default":{}}  
+
+ycs@linux-afno:~/go> warpten playlist -a NewList
+Create playlists NewList: success  
+
+ycs@linux-afno:~/go> warpten playlists
+Warpten playlists: {"Default":{},"NewList":{}}  
+
+ycs@linux-afno:~/go> warpten playlist -a NewList2
+Create playlists NewList2: success  
+
+ycs@linux-afno:~/go> warpten playlists
+Warpten playlists: {"Default":{},"NewList":{},"NewList2":{}}  
+
+ycs@linux-afno:~/go> warpten playlist -d NewList
+Delete playlists NewList: success  
+
+ycs@linux-afno:~/go> warpten playlists
+Warpten playlists: {"Default":{},"NewList2":{}}
+```
