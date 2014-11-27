@@ -71,27 +71,40 @@ warpten -t version 使用Tcp socket
 ```
 
 ```
-ycs@linux-afno:~/go> warpten version
-Warpten version: 0.0  
-
-ycs@linux-afno:~/go> warpten playlists
-Warpten playlists: {"Default":{}}  
-
-ycs@linux-afno:~/go> warpten playlist -a NewList
-Create playlists NewList: success  
-
-ycs@linux-afno:~/go> warpten playlists
-Warpten playlists: {"Default":{},"NewList":{}}  
-
-ycs@linux-afno:~/go> warpten playlist -a NewList2
-Create playlists NewList2: success  
-
-ycs@linux-afno:~/go> warpten playlists
-Warpten playlists: {"Default":{},"NewList":{},"NewList2":{}}  
-
-ycs@linux-afno:~/go> warpten playlist -d NewList
-Delete playlists NewList: success  
-
-ycs@linux-afno:~/go> warpten playlists
-Warpten playlists: {"Default":{},"NewList2":{}}
+查看播放器版本
+ycs@linux-afno:~/go/src/warpten> warpten version
+Warpten version: 0.0 
+查看所有播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":[]}
+添加一个名字NewList的播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlist -a NewList
+Create playlists NewList: success
+查看所有播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":[],"NewList":[]}
+查看播放列表NewList的内容
+ycs@linux-afno:~/go/src/warpten> warpten playlist NewList
+Get playlist NewList: []
+添加播放列表NewList2
+ycs@linux-afno:~/go/src/warpten> warpten playlist -a NewList2
+Create playlists NewList2: success
+查看所有播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":[],"NewList":[],"NewList2":[]}
+删除播放列表NewList
+ycs@linux-afno:~/go/src/warpten> warpten playlist -d NewList
+Delete playlists NewList: success
+查看所有播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":[],"NewList2":[]}
+删除播放列表NewList3
+ycs@linux-afno:~/go/src/warpten> warpten playlist -d NewList3
+Delete playlists NewList3: NewList3 not exists
+添加播放列表NewList2
+ycs@linux-afno:~/go/src/warpten> warpten playlist -a NewList2
+Create playlists NewList2: NewList2 exists
+查看所有播放列表
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":[],"NewList2":[]}
 ```
