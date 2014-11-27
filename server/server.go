@@ -20,12 +20,16 @@ func createRouter() (*http.ServeMux, error) {
 			"/version":   getVersion,
 			"/playlists": getPlaylists,
 			"/playlist":  getPlaylist,
+			"/tracks":    getTracks,
+			"/track":     getTrack,
 		},
 		"POST": {
-			"/playlist/new": newPlaylist,
+			"/playlist/add": addPlaylist,
+			"/track/add":    addTrack,
 		},
 		"DELETE": {
 			"/playlist/del": delPlaylist,
+			"/track/del":    delTrack,
 		},
 	}
 
@@ -77,7 +81,7 @@ func getPlaylist(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func newPlaylist(w http.ResponseWriter, r *http.Request) error {
+func addPlaylist(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
 		return err
@@ -99,6 +103,63 @@ func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 	name := r.Form.Get("name")
 	if err := player.DelPlaylist(name); err != nil {
 		fmt.Fprintf(w, name+" not exists")
+		return nil
+	}
+	fmt.Fprintf(w, "success")
+	return nil
+}
+
+func getTracks(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	tks := player.Tracks()
+	b, err := json.Marshal(tks)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
+	return nil
+}
+
+func getTrack(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	uuid := r.Form.Get("uuid")
+	if tk, exists := player.Track(uuid); exists {
+		b, err := json.Marshal(tk)
+		if err != nil {
+			return err
+		}
+		w.Write(b)
+		return nil
+	}
+	fmt.Fprintf(w, "nil")
+	return nil
+}
+
+func addTrack(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	path, playlist := r.Form.Get("path"), r.Form.Get("playlist")
+	if err := player.AddTrack(path, playlist); err != nil {
+		fmt.Fprintf(w, err.Error())
+		return nil
+	}
+	fmt.Fprintf(w, "success")
+	return nil
+}
+
+func delTrack(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	uuid, playlist := r.Form.Get("uuid"), r.Form.Get("playlist")
+	if err := player.DelTrack(uuid, playlist); err != nil {
+		fmt.Fprintf(w, err.Error())
 		return nil
 	}
 	fmt.Fprintf(w, "success")

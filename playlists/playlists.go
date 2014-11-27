@@ -52,7 +52,7 @@ func (pls Playlists) Len() int {
 
 func (pls Playlists) AddUUIDs(name string, uuids ...string) error {
 	if pl, exists := pls[name]; exists {
-		pl = append(pl, uuids...)
+		pls[name] = append(pl, uuids...)
 		return nil
 	}
 	return ErrPlaylistNotExists
@@ -64,7 +64,7 @@ func (pls Playlists) DelUUIDs(name string, uuids ...string) error {
 		for _, uuid := range uuids {
 			for i, u := range pl {
 				if uuid == u {
-					pl = append(pl[:i], pl[i+1:]...)
+					pls[name] = append(pl[:i], pl[i+1:]...)
 					break
 				}
 			}

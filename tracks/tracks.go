@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -38,7 +39,7 @@ func (tks Tracks) AddTrack(path string) (string, error) {
 			if err != nil {
 				return "", err
 			}
-			uuid = string(out)
+			uuid = strings.TrimSpace(string(out))
 			if _, exists := tks[uuid]; !exists {
 				break
 			}
@@ -46,8 +47,8 @@ func (tks Tracks) AddTrack(path string) (string, error) {
 	default:
 		return "", ErrNotImplemented
 	}
-	tk := Track{path: path}
-	tks[uuid] = &tk
+	tk := &Track{path: path}
+	tks[uuid] = tk
 	return uuid, nil
 }
 

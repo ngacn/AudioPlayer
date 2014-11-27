@@ -29,7 +29,6 @@ func (cli *WarptenCli) CmdPlaylists(args ...string) error {
 	}
 	fmt.Fprintf(os.Stdout, "Warpten playlists: %s\n", body)
 	return nil
-
 }
 
 func (cli *WarptenCli) CmdPlaylist(args ...string) error {
@@ -50,11 +49,11 @@ func (cli *WarptenCli) CmdPlaylist(args ...string) error {
 
 	// TODO: need refactor
 	if *add {
-		body, _, err := readBody(cli.call("POST", "/playlist/new?"+v.Encode(), nil))
+		body, _, err := readBody(cli.call("POST", "/playlist/add?"+v.Encode(), nil))
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(os.Stdout, "Create playlists %v: %s\n", cmd.Arg(0), body)
+		fmt.Fprintf(os.Stdout, "Create playlist %v: %s\n", cmd.Arg(0), body)
 		return nil
 	}
 
@@ -63,7 +62,7 @@ func (cli *WarptenCli) CmdPlaylist(args ...string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(os.Stdout, "Delete playlists %v: %s\n", cmd.Arg(0), body)
+		fmt.Fprintf(os.Stdout, "Delete playlist %v: %s\n", cmd.Arg(0), body)
 		return nil
 	}
 
@@ -72,5 +71,62 @@ func (cli *WarptenCli) CmdPlaylist(args ...string) error {
 		return err
 	}
 	fmt.Fprintf(os.Stdout, "Get playlist %v: %s\n", cmd.Arg(0), body)
+	return nil
+}
+
+func (cli *WarptenCli) CmdTracks(args ...string) error {
+	body, _, err := readBody(cli.call("GET", "/tracks", nil))
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stdout, "Warpten tracks: %s\n", body)
+	return nil
+}
+
+func (cli *WarptenCli) CmdTrack(args ...string) error {
+	cmd := cli.Subcmd("track", "[OPTIONS] ", "UUID", "Get track by uuid")
+	pl := cmd.String("pl", "Default", "Add/Del track to/from playlist")
+	add := cmd.Bool("a", false, "Create new track")
+	del := cmd.Bool("d", false, "Delete track")
+
+	if err := cmd.Parse(args); err != nil {
+		return err
+	}
+
+	if cmd.NArg() < 1 {
+		cmd.Usage()
+		return nil
+	}
+	v := url.Values{}
+
+	// TODO: need refactor
+	if *add {
+		v.Set("path", cmd.Arg(0))
+		v.Set("playlist", *pl)
+		body, _, err := readBody(cli.call("POST", "/track/add?"+v.Encode(), nil))
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stdout, "Create track %v: %s\n", cmd.Arg(0), body)
+		return nil
+	}
+
+	if *del {
+		v.Set("uuid", cmd.Arg(0))
+		v.Set("playlist", *pl)
+		body, _, err := readBody(cli.call("DELETE", "/track/del?"+v.Encode(), nil))
+		if err != nil {
+			return err
+		}
+		fmt.Fprintf(os.Stdout, "Delete track %v: %s\n", cmd.Arg(0), body)
+		return nil
+	}
+
+	v.Set("uuid", cmd.Arg(0))
+	body, _, err := readBody(cli.call("GET", "/track?"+v.Encode(), nil))
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stdout, "Get track %v: %s\n", cmd.Arg(0), body)
 	return nil
 }
