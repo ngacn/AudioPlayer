@@ -108,3 +108,40 @@ Create playlists NewList2: NewList2 exists
 ycs@linux-afno:~/go/src/warpten> warpten playlists
 Warpten playlists: {"Default":[],"NewList2":[]}
 ```
+
+更新一些track相关的例子
+```
+ycs@linux-afno:~/go/src/warpten> warpten playlist -a NewList
+Create playlist NewList: success
+ycs@linux-afno:~/go/src/warpten> warpten tracks
+debug=> map[]
+Warpten tracks: {}
+ycs@linux-afno:~/go/src/warpten> warpten track -a -pl="NewList" /tmp/1.mp3
+Create track /tmp/1.mp3: success
+ycs@linux-afno:~/go/src/warpten> warpten track -a -pl="NewList" /tmp/3.mp3                                                                                                          
+Create track /tmp/3.mp3: success
+ycs@linux-afno:~/go/src/warpten> warpten track -a /tmp/4.mp3                                                                                                                        
+Create track /tmp/4.mp3: success
+
+ycs@linux-afno:~/go/src/warpten> warpten tracks
+debug=> map[d0a819e1-ff36-4eac-8d81-4071e6c12012:0xc208036d60 27253a71-b8b2-49f2-bb93-0d13a54d2bac:0xc2080368d0 c71f96b6-5693-4296-becb-a6f02f43b54c:0xc208036be0]
+Warpten tracks: {"27253a71-b8b2-49f2-bb93-0d13a54d2bac":{},"c71f96b6-5693-4296-becb-a6f02f43b54c":{},"d0a819e1-ff36-4eac-8d81-4071e6c12012":{}}
+
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":["c71f96b6-5693-4296-becb-a6f02f43b54c"],"NewList":["d0a819e1-ff36-4eac-8d81-4071e6c12012","27253a71-b8b2-49f2-bb93-0d13a54d2bac"]}
+ycs@linux-afno:~/go/src/warpten> warpten track -d -pl="NewList" d0a819e1-ff36-4eac-8d81-4071e6c12012                                                                                
+Delete track d0a819e1-ff36-4eac-8d81-4071e6c12012: success
+
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":["c71f96b6-5693-4296-becb-a6f02f43b54c"],"NewList":["27253a71-b8b2-49f2-bb93-0d13a54d2bac"]}
+ycs@linux-afno:~/go/src/warpten> warpten track 27253a71-b8b2-49f2-bb93-0d13a54d2bac
+debug=> &{/tmp/3.mp3}
+Get track 27253a71-b8b2-49f2-bb93-0d13a54d2bac: {}
+ycs@linux-afno:~/go/src/warpten> warpten playlist -d NewList
+Delete playlist NewList: success
+ycs@linux-afno:~/go/src/warpten> warpten playlists
+Warpten playlists: {"Default":["c71f96b6-5693-4296-becb-a6f02f43b54c"]}
+ycs@linux-afno:~/go/src/warpten> warpten tracks
+debug=> map[c71f96b6-5693-4296-becb-a6f02f43b54c:0xc208036be0]
+Warpten tracks: {"c71f96b6-5693-4296-becb-a6f02f43b54c":{}}
+```
