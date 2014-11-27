@@ -61,6 +61,7 @@ func (pls Playlists) AddUUIDs(name string, uuids ...string) error {
 func (pls Playlists) DelUUIDs(name string, uuids ...string) error {
 	if pl, exists := pls[name]; exists {
 		// wtf???
+		// 删除一个slice中的几个元素有没有更好的方法？
 		for _, uuid := range uuids {
 			for i, u := range pl {
 				if uuid == u {

@@ -7,12 +7,14 @@ import (
 	"os"
 )
 
+// 输出Usage
 func (cli *WarptenCli) CmdHelp(args ...string) error {
 	fmt.Fprintf(os.Stdout, "Usage: warpten [OPTIONS] COMMAND\n")
 	flag.PrintDefaults()
 	return nil
 }
 
+// 请求并输出版本号
 func (cli *WarptenCli) CmdVersion(args ...string) error {
 	body, _, err := readBody(cli.call("GET", "/version", nil))
 	if err != nil {
@@ -22,6 +24,7 @@ func (cli *WarptenCli) CmdVersion(args ...string) error {
 	return nil
 }
 
+// 请求并输出所有播放列表
 func (cli *WarptenCli) CmdPlaylists(args ...string) error {
 	body, _, err := readBody(cli.call("GET", "/playlists", nil))
 	if err != nil {
@@ -31,6 +34,7 @@ func (cli *WarptenCli) CmdPlaylists(args ...string) error {
 	return nil
 }
 
+// 请求并输出指定名字的播放列表， -a为增加新列表， -d为删除列表
 func (cli *WarptenCli) CmdPlaylist(args ...string) error {
 	cmd := cli.Subcmd("playlist", "[OPTIONS] ", "NAME", "Get playlist by name")
 	add := cmd.Bool("a", false, "Create new playlist")
@@ -74,6 +78,7 @@ func (cli *WarptenCli) CmdPlaylist(args ...string) error {
 	return nil
 }
 
+// 请求并输出所有track
 func (cli *WarptenCli) CmdTracks(args ...string) error {
 	body, _, err := readBody(cli.call("GET", "/tracks", nil))
 	if err != nil {
@@ -83,6 +88,9 @@ func (cli *WarptenCli) CmdTracks(args ...string) error {
 	return nil
 }
 
+// 请求并输出指定uuid的track信息， -a为增加新track， -d为删除某uuid的track
+// 这两个操作都需要指定哪个播放列表中的track
+// track并不储存在播放列表中， 只是方便移除相应的tag
 func (cli *WarptenCli) CmdTrack(args ...string) error {
 	cmd := cli.Subcmd("track", "[OPTIONS] ", "UUID", "Get track by uuid")
 	pl := cmd.String("pl", "Default", "Add/Del track to/from playlist")

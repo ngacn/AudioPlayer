@@ -1,3 +1,4 @@
+// 这是restful api的服务器端程序
 package server
 
 import (
@@ -11,8 +12,10 @@ import (
 	"warpten/player"
 )
 
+// 这相当于一个声明一个回调函数， 不同的请求用不同的函数处理
 type HttpApiFunc func(w http.ResponseWriter, r *http.Request) error
 
+// 创建不同的请求和回调函数的对应关系
 func createRouter() (*http.ServeMux, error) {
 	r := http.NewServeMux()
 	m := map[string]map[string]HttpApiFunc{
@@ -38,7 +41,9 @@ func createRouter() (*http.ServeMux, error) {
 			localRoute := route
 			localFct := fct
 			localMethod := method
+			// 给回调函数包装了一层
 			f := makeHttpHandler(localMethod, localRoute, localFct)
+			// 绑定请求和回调函数
 			r.HandleFunc(localRoute, f)
 		}
 	}
@@ -46,12 +51,14 @@ func createRouter() (*http.ServeMux, error) {
 	return r, nil
 }
 
+// 获取播放器版本
 func getVersion(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, player.Version())
 	return nil
 }
 
+// 获取所有播放列表
 func getPlaylists(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	pls := player.Playlists()
@@ -63,6 +70,7 @@ func getPlaylists(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 获取指定名字的播放列表
 func getPlaylist(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -81,6 +89,7 @@ func getPlaylist(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 添加播放列表
 func addPlaylist(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -95,6 +104,7 @@ func addPlaylist(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 删除播放列表
 func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -109,6 +119,7 @@ func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 获取所有tracks
 func getTracks(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	tks := player.Tracks()
@@ -120,6 +131,7 @@ func getTracks(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 获取指定uuid的track
 func getTrack(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -138,6 +150,7 @@ func getTrack(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 添加指定路径的track到某个播放列表， 比如在gui中拖拽一个文件到播放列表
 func addTrack(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -152,6 +165,7 @@ func addTrack(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// 删除在某个播放列表中的指定uuid的track
 func delTrack(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
@@ -174,24 +188,29 @@ func makeHttpHandler(localMethod string, localRoute string, handlerFunc HttpApiF
 	}
 }
 
+// 服务器接口
 type Server interface {
 	Serve() error
 	Close() error
 }
 
+// 服务器结构体
 type HttpServer struct {
 	srv *http.Server
 	l   net.Listener
 }
 
+// 开始处理请求
 func (s *HttpServer) Serve() error {
 	return s.srv.Serve(s.l)
 }
 
+// 关闭
 func (s *HttpServer) Close() error {
 	return s.l.Close()
 }
 
+// 创建tcp或unix domain socket
 func NewWarptenSrv(proto, addr string) (Server, error) {
 	switch proto {
 	case "tcp":
@@ -240,6 +259,7 @@ func setupUnixHttp(addr string) (*HttpServer, error) {
 	return &HttpServer{&http.Server{Addr: addr, Handler: r}, l}, nil
 }
 
+// 解析request中的参数
 func parseForm(r *http.Request) error {
 	if r == nil {
 		return nil

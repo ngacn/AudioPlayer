@@ -15,6 +15,7 @@ var (
 
 type Tracks map[string]*Track
 
+// track结构中现在只有一个path， 之后还会添加信息
 type Track struct {
 	path string
 }
@@ -30,6 +31,9 @@ func (tks Tracks) Track(uuid string) (*Track, bool) {
 }
 
 func (tks Tracks) AddTrack(path string) (string, error) {
+	// 使用了mac和linux自带的一个命令生成uuid
+	// windows暂时没有这个＝。＝
+	// 所以为了跨平台要自己实现这个生成uuid
 	var uuid string
 	switch os := runtime.GOOS; os {
 	case "darwin":

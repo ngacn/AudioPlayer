@@ -1,3 +1,4 @@
+// restful api的客户端程序
 package client
 
 import (
@@ -26,6 +27,7 @@ func (e *StatusError) Error() string {
 	return fmt.Sprintf("Status: %s, Code: %d", e.Status, e.StatusCode)
 }
 
+// 使用反射拼接命令行参数成具体的服务器端的函数
 func (cli *WarptenCli) getMethod(args ...string) (func(...string) error, bool) {
 	camelArgs := make([]string, len(args))
 	for i, s := range args {
@@ -35,6 +37,7 @@ func (cli *WarptenCli) getMethod(args ...string) (func(...string) error, bool) {
 		camelArgs[i] = strings.ToUpper(s[:1]) + strings.ToLower(s[1:])
 	}
 	methodName := "Cmd" + strings.Join(camelArgs, "")
+	// 查询WarptenCli下的方法
 	method := reflect.ValueOf(cli).MethodByName(methodName)
 	if !method.IsValid() {
 		return nil, false
@@ -42,6 +45,7 @@ func (cli *WarptenCli) getMethod(args ...string) (func(...string) error, bool) {
 	return method.Interface().(func(...string) error), true
 }
 
+// 解析命令行参数，并执行对应的命令
 func (cli *WarptenCli) Cmd(args ...string) error {
 	if len(args) > 1 {
 		method, exists := cli.getMethod(args[:2]...)
@@ -60,6 +64,7 @@ func (cli *WarptenCli) Cmd(args ...string) error {
 	return cli.CmdHelp()
 }
 
+// 处理二级命令
 func (cli *WarptenCli) Subcmd(name, options, signature, description string) *flag.FlagSet {
 	flags := flag.NewFlagSet(name, flag.ContinueOnError)
 	flags.Usage = func() {
@@ -74,6 +79,7 @@ func NewWarptenCli(proto, addr string) *WarptenCli {
 	tr := &http.Transport{}
 	timeout := 32 * time.Second
 	if proto == "unix" {
+		// 本地unix domain socket通讯时不压缩数据，好像本地tcp时也不需要
 		tr.DisableCompression = true
 		tr.Dial = func(_, _ string) (net.Conn, error) {
 			return net.DialTimeout(proto, addr, timeout)

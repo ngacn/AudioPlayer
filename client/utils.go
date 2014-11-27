@@ -29,6 +29,7 @@ func (cli *WarptenCli) encodeData(data interface{}) (*bytes.Buffer, error) {
 	return params, nil
 }
 
+// 发起请求
 func (cli *WarptenCli) call(method, path string, data interface{}) (io.ReadCloser, int, error) {
 	params, err := cli.encodeData(data)
 	if err != nil {
@@ -40,6 +41,7 @@ func (cli *WarptenCli) call(method, path string, data interface{}) (io.ReadClose
 	}
 	req.Header.Set("User-Agent", "Warpten-Client")
 	req.URL.Host = cli.addr
+	// 总是使用http协议
 	req.URL.Scheme = "http"
 	if data != nil {
 		req.Header.Set("Content-Type", "application/json")
