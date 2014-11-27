@@ -1,105 +1,84 @@
 package player
 
 import (
-	"errors"
-	"os/exec"
-	"runtime"
-	"warpten/playlist"
-	"warpten/track"
-)
-
-var (
-	ErrPlaylistExists    = errors.New("Playlist already exists")
-	ErrPlaylistNotExists = errors.New("Playlist not exists")
-
-	ErrNotImplemented = errors.New("Method not implemented")
+	"warpten/playlists"
+	"warpten/tracks"
 )
 
 var version string
-var playlists map[string]*playlist.Playlist
-var tracks map[string]*track.Track
+var pls playlists.Playlists
+var tks tracks.Tracks
 
 func Version() string {
 	return version
 }
 
-func Playlists() map[string]*playlist.Playlist {
-	return playlists
+func Playlists() playlists.Playlists {
+	return pls
 }
 
-func Playlist(name string) (*playlist.Playlist, bool) {
-	pl, exists := playlists[name]
-	return pl, exists
+func Tracks() tracks.Tracks {
+	return tks
 }
 
-func NewPlaylist(name string) error {
-	if _, exists := playlists[name]; exists {
-		return ErrPlaylistExists
-	}
-	playlists[name] = playlist.New()
-	return nil
+func Playlist(name string) ([]string, bool) {
+	return pls.Playlist(name)
+}
+
+func AddPlaylist(name string) error {
+	return pls.AddPlaylist(name)
 }
 
 func DelPlaylist(name string) error {
-	if pl, exists := playlists[name]; exists {
-		pl.Clear()
-		delete(playlists, name)
-		return nil
-	} else {
-		return ErrPlaylistNotExists
+	uuids, exists := pls.Playlist(name)
+	if !exists {
+		return playlists.ErrPlaylistNotExists
 	}
-}
 
-func NewTrack(path, playlist string) error {
-	var uuid string
-	switch os := runtime.GOOS; os {
-	case "darwin":
-	case "linux":
-		for {
-			out, err := exec.Command("uuidgen").Output()
-			if err != nil {
-				return err
-			}
-			uuid = string(out)
-			if _, exists := tracks[uuid]; !exists {
-				break
-			}
+	for _, uuid := range uuids {
+		if err := tks.DelTrack(uuid); err != nil {
+			return err
 		}
-	default:
-		return ErrNotImplemented
 	}
 
-	t := track.New(uuid, path)
-	tracks[uuid] = t
-	pl, exists := Playlist("Default")
-	if exists {
-		pl.Append(t)
-	} else {
-		return ErrPlaylistNotExists
+	if err := pls.DelPlaylist(name); err != nil {
+		return err
 	}
 	return nil
 }
 
-func Track(uuid string) (*track.Track, bool) {
-	t, exists := tracks[uuid]
-	return t, exists
+func Track(uuid string) (*tracks.Track, bool) {
+	tk, exists := tks.Track(uuid)
+	return tk, exists
+}
+
+func AddTrack(path, playlist string) error {
+	uuid, err := tks.AddTrack(path)
+	if err != nil {
+		return err
+	}
+
+	_, exists := pls.Playlist(playlist)
+	if exists {
+		pls.AddUUIDs(playlist, uuid)
+		return nil
+	}
+	return playlists.ErrPlaylistNotExists
 }
 
 func DelTrack(uuid, playlist string) error {
-	delete(tracks, uuid)
-	pl, exists := Playlist(playlist)
+	_, exists := pls.Playlist(playlist)
 	if exists {
-		pl.DelTrack(uuid)
+		pls.DelUUIDs(playlist, uuid)
 	} else {
-		return ErrPlaylistNotExists
+		return playlists.ErrPlaylistNotExists
 	}
-	return nil
+	return tks.DelTrack(uuid)
 }
 
 func Init() {
-	playlists = make(map[string]*playlist.Playlist)
-	tracks = make(map[string]*track.Track)
-	defaultPlaylist := playlist.New()
-	playlists["Default"] = defaultPlaylist
 	version = "0.0"
+	pls = playlists.New()
+	pls.AddPlaylist("Default")
+	tks = tracks.New()
 }

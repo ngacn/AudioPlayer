@@ -83,7 +83,7 @@ func newPlaylist(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	name := r.Form.Get("name")
-	if err := player.NewPlaylist(name); err != nil {
+	if err := player.AddPlaylist(name); err != nil {
 		fmt.Fprintf(w, name+" exists")
 		return nil
 	}
