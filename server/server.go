@@ -165,14 +165,14 @@ func addTrack(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// 删除在某个播放列表中的指定uuid的track
+// 删除指定uuid的track
 func delTrack(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	uuid, playlist := r.Form.Get("uuid"), r.Form.Get("playlist")
-	if err := player.DelTrack(uuid, playlist); err != nil {
+	uuid := r.Form.Get("uuid")
+	if err := player.DelTrack(uuid); err != nil {
 		fmt.Fprintf(w, err.Error())
 		return nil
 	}

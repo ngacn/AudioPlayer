@@ -88,12 +88,11 @@ func (cli *WarptenCli) CmdTracks(args ...string) error {
 	return nil
 }
 
-// 请求并输出指定uuid的track信息， -a为增加新track， -d为删除某uuid的track
-// 这两个操作都需要指定哪个播放列表中的track
+// 请求并输出指定uuid的track信息， -a为增加新track到播放列表， -d为删除某uuid的track
 // track并不储存在播放列表中， 只是方便移除相应的tag
 func (cli *WarptenCli) CmdTrack(args ...string) error {
 	cmd := cli.Subcmd("track", "[OPTIONS] ", "UUID", "Get track by uuid")
-	pl := cmd.String("pl", "Default", "Add/Del track to/from playlist")
+	pl := cmd.String("pl", "Default", "Add track to playlist")
 	add := cmd.Bool("a", false, "Create new track")
 	del := cmd.Bool("d", false, "Delete track")
 
@@ -121,7 +120,6 @@ func (cli *WarptenCli) CmdTrack(args ...string) error {
 
 	if *del {
 		v.Set("uuid", cmd.Arg(0))
-		v.Set("playlist", *pl)
 		body, _, err := readBody(cli.call("DELETE", "/track/del?"+v.Encode(), nil))
 		if err != nil {
 			return err

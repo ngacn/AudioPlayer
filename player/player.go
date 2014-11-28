@@ -62,7 +62,7 @@ func Track(uuid string) (*tracks.Track, bool) {
 
 func AddTrack(path, playlist string) error {
 	// 创建新track, 并获得新track的uuid
-	uuid, err := tks.AddTrack(path)
+	uuid, err := tks.AddTrack(path, playlist)
 	if err != nil {
 		return err
 	}
@@ -70,22 +70,28 @@ func AddTrack(path, playlist string) error {
 	// 将uuid添加到对应的播放列表
 	_, exists := pls.Playlist(playlist)
 	if exists {
-		pls.AddUUIDs(playlist, uuid)
-		return nil
+		return pls.AddUUIDs(playlist, uuid)
 	}
 	return playlists.ErrPlaylistNotExists
 }
 
-func DelTrack(uuid, playlist string) error {
-	// 删除播放列表中的uuid
-	_, exists := pls.Playlist(playlist)
-	if exists {
-		pls.DelUUIDs(playlist, uuid)
-	} else {
-		return playlists.ErrPlaylistNotExists
+func DelTrack(uuid string) error {
+	tk, exists := tks.Track(uuid)
+	if !exists {
+		return tracks.ErrTrackNotExists
 	}
+	playlist := tk.Playlist()
 	// 删除uuid对应的track
-	return tks.DelTrack(uuid)
+	if err := tks.DelTrack(uuid); err != nil {
+		return err
+	}
+
+	// 删除播放列表中的uuid
+	_, exists = pls.Playlist(playlist)
+	if exists {
+		return pls.DelUUIDs(playlist, uuid)
+	}
+	return playlists.ErrPlaylistNotExists
 }
 
 func Init() {
