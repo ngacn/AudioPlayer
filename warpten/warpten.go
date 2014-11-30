@@ -28,7 +28,7 @@ func main() {
 func run() error {
 	engine := qml.NewEngine()
 
-	controls, err := engine.LoadFile("main.qml")
+	controls, err := engine.LoadFile("warpten.qml")
 	if err != nil {
 		return err
 	}
