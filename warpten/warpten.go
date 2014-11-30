@@ -1,59 +1,41 @@
-// 程序的入口文件，目前需要-d后台启动一次，开启服务器，然后不带-d执行向服务器发送命令,
-// 实际的做法应该是执行一次服务器启动为守护程序，然后fork出gui进程。
+// 播放器的入口文件， 会fork出一个进程启动服务器守护程序
 package main
 
 import (
-	"flag"
 	"fmt"
-	"strings"
-	"warpten/client"
-	"warpten/player"
-	"warpten/server"
+	"gopkg.in/qml.v1"
+	"log"
+	"os"
+	"os/exec"
 )
 
 func main() {
-	const (
-		DEFAULTHTTPHOST   = "127.0.0.1:7478"
-		DEFAULTUNIXSOCKET = "/tmp/warpten.sock"
-	)
-
-	// 设置命令行参数
-	var (
-		flDaemon = flag.Bool("d", false, "Enable daemon mode")
-		flTcp    = flag.Bool("t", false, "Enable the TCP socket")
-	)
-
-	// 解析命令行参数
-	flag.Parse()
-
-	// 默认使用unix domin socket连接，带-t时用tcp
-	defaultHost := fmt.Sprintf("unix://%s", DEFAULTUNIXSOCKET)
-	if *flTcp {
-		defaultHost = fmt.Sprintf("tcp://%s", DEFAULTHTTPHOST)
+	// 启动服务器守护程序
+	cmd := exec.Command("warpten-daemon", "-d")
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
 	}
 
-	protoAddrParts := strings.SplitN(defaultHost, "://", 2)
+	// 启动gui
+	if err := qml.Run(run); err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+	// 关闭服务器守护程序
+	cmd.Process.Signal(os.Interrupt)
+}
 
-	// 说明是启动服务器端的功能
-	if *flDaemon {
-		// 初始化播放器
-		player.Init()
-		// 创建restful api服务器端
-		srv, err := server.NewWarptenSrv(protoAddrParts[0], protoAddrParts[1])
-		if err != nil {
-			fmt.Println("WarptenSrv: Couldn't create WarptenSrv")
-			return
-		}
-		// 开始监听并处理请求
-		srv.Serve()
-		// 程序退出
-		return
+func run() error {
+	engine := qml.NewEngine()
+
+	controls, err := engine.LoadFile("main.qml")
+	if err != nil {
+		return err
 	}
 
-	// 创建restful api客户端程序
-	var cli *client.WarptenCli = client.NewWarptenCli(protoAddrParts[0], protoAddrParts[1])
-	// 解析命令，并向服务器发送请求
-	if err := cli.Cmd(flag.Args()...); err != nil {
-		fmt.Println("WarptenCli: =>", err)
-	}
+	window := controls.CreateWindow(nil)
+
+	window.Show()
+	window.Wait()
+	return nil
 }
