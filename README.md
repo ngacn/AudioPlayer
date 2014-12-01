@@ -42,45 +42,56 @@ cd $GOPATH/src
 git clone https://github.com/ngacn/AudioPlayer.git warpten  
 ```  
 注意项目名需要是wrapten， 而不是AudioPlayer  
- 
+
+6.根据https://github.com/go-qml/qm配置go-qml环境，我的建议直接安装qt-creator
+比如我现在是arch linux，就直接pacman -S qtcreator
+
+7.安装go-qml
+```
+go get gopkg.in/qml.v1  
+```
 目录结构类似下面：  
 ```
 .
 ├── bin
 ├── pkg
 └── src
+    ├── gopkg.in
+    │   └── qml.v1
     └── warpten
-        ├── README.md
         ├── client
-        │   ├── cli.go
-        │   ├── commands.go
-        │   └── utils.go
+        ├── player
+        ├── playlists
+        ├── README.md
         ├── server
-        │   └── server.go
-        └── warpten
-            └── warpten.go
+        ├── tracks
+        ├── warpten
+        └── warpten-daemon
+
+13 directories, 1 file
+
 ```  
 
-6.编译  
+8.编译  
 ```
 go install warpten/warpten  
+go install warpten/warpten-daemon
 ```
 
-7.使用  
+9.使用  
   
-开启服务器  
 ```
-warpten -d &  
-或  
-warpten -d -t & 使用Tcp socket  
+warpten  
 ```
-发送给服务器并显示  
+发送测试命令给服务器并显示  
 ```
-warpten version  
-或  
-warpten -t version 使用Tcp socket  
+warpten-daemon version  
 ```
 
+10.关闭
+关闭gui, daemon进程也会被关闭
+
+下面命令warpten都要改为warpten-daemon，有时间我再整理下
 ```
 查看播放器版本
 ycs@linux-afno:~/go/src/warpten> warpten version
