@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    Q_INIT_RESOURCE(application);
+    Q_INIT_RESOURCE(warpten);
 
     QApplication app(argc, argv);
     app.setOrganizationName("ngacn@prognyan");

@@ -5,8 +5,8 @@ HEADERS       = mainwindow.h \
 SOURCES       = main.cpp \
                 mainwindow.cpp \
     playlisttab.cpp
-RESOURCES     = application.qrc
+RESOURCES     = warpten.qrc
 
 # install
-target.path = $$[QT_INSTALL_EXAMPLES]/widgets/mainwindows/application
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/mainwindows/warpten
 INSTALLS += target
