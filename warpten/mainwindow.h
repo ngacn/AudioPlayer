@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -37,6 +38,8 @@ private:
     QAction *aboutAct;
     QAction *aboutQtAct;
     QTabWidget *playlistsTabWidget;
+
+    QProcess *daemonProcess;
 };
 
 #endif

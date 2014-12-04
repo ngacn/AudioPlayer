@@ -5,6 +5,14 @@
 
 MainWindow::MainWindow()
 {
+    daemonProcess = new QProcess(this);
+    QStringList args;
+    args << "-d";
+#ifdef Q_WS_WIN32
+    args << "-t";
+#endif
+    daemonProcess->start("warpten-daemon", args);
+
     playlistsTabWidget = new QTabWidget;
     playlistsTabWidget->addTab(new PlaylistTab(), tr("Default"));
     setCentralWidget(playlistsTabWidget);
@@ -20,6 +28,7 @@ MainWindow::MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    daemonProcess->terminate();
     writeSettings();
     event->accept();
 }
