@@ -1,10 +1,12 @@
 QT += widgets
 
 HEADERS       = mainwindow.h \
-    playlisttab.h
+    playlisttab.h \
+    warptencli.h
 SOURCES       = main.cpp \
                 mainwindow.cpp \
-    playlisttab.cpp
+    playlisttab.cpp \
+    warptencli.cpp
 RESOURCES     = warpten.qrc
 
 # install
