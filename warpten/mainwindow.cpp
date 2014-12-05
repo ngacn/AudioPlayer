@@ -2,16 +2,16 @@
 
 #include "mainwindow.h"
 #include "playlisttab.h"
+#include "warptencli.h"
 
 MainWindow::MainWindow()
 {
     daemonProcess = new QProcess(this);
     QStringList args;
-    args << "-d";
-#ifdef Q_WS_WIN32
-    args << "-t";
-#endif
+    args << "-d" << "-t";
     daemonProcess->start("warpten-daemon", args);
+
+    requestVersion();
 
     playlistsTabWidget = new QTabWidget;
     playlistsTabWidget->addTab(new PlaylistTab(), tr("Default"));
@@ -40,8 +40,8 @@ void MainWindow::newPlaylist()
 
 void MainWindow::about()
 {
-   QMessageBox::about(this, tr("About Warpten"),
-            tr("<b>Warpten</b> is an audio player similar to foobar2000."));
+    QMessageBox::about(this, tr("About Warpten"),
+                       tr("<b>Warpten</b> v%1 is an audio player similar to foobar2000.").arg(version));
 }
 
 void MainWindow::createActions()
@@ -100,4 +100,27 @@ void MainWindow::writeSettings()
     QSettings settings("Warpten", "Warpten Player");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
+}
+
+void MainWindow::requestVersion()
+{
+    QString url = "http://127.0.0.1:7478/version";
+    HttpRequestInput input(url, "GET");
+    WarptenCli *cli = new WarptenCli(this);
+    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateVersion(WarptenCli*)));
+    cli->execute(&input);
+}
+
+void MainWindow::updateVersion(WarptenCli *cli) {
+    QString msg;
+
+    if (cli->errorType == QNetworkReply::NoError) {
+        // communication was successful
+        msg = "Success - Response: " + cli->response;
+    } else {
+        // an error occurred
+        msg = "Error: " + cli->errorStr;
+    }
+
+    version = cli->response;
 }

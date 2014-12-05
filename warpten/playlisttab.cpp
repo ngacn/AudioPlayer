@@ -12,7 +12,7 @@ PlaylistTab::PlaylistTab(QWidget *parent) :
         tracks.append(tr("Track %1").arg(i));
     tracksListBox->insertItems(0, tracks);
 
-     QVBoxLayout *layout = new QVBoxLayout;
-     layout->addWidget(tracksListBox);
-     setLayout(layout);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(tracksListBox);
+    setLayout(layout);
 }
