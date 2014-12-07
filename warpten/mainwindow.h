@@ -26,6 +26,7 @@ private slots:
     void about();
 
     void updateVersion(WarptenCli *cli);
+    void updatePlaylists(WarptenCli *cli);
 
 private:
     void createActions();
@@ -35,6 +36,7 @@ private:
     void writeSettings();
 
     void requestVersion();
+    void requestPlaylists();
 
     QMenu *fileMenu;
     QMenu *editMenu;

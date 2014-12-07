@@ -12,9 +12,9 @@ MainWindow::MainWindow()
     daemonProcess->start("warpten-daemon", args);
 
     requestVersion();
+    requestPlaylists();
 
     playlistsTabWidget = new QTabWidget;
-    playlistsTabWidget->addTab(new PlaylistTab(), tr("Default"));
     setCentralWidget(playlistsTabWidget);
 
     createActions();
@@ -123,4 +123,30 @@ void MainWindow::updateVersion(WarptenCli *cli) {
     }
 
     version = cli->response;
+}
+
+void MainWindow::requestPlaylists()
+{
+    QString url = "http://127.0.0.1:7478/playlists";
+    HttpRequestInput input(url, "GET");
+    WarptenCli *cli = new WarptenCli(this);
+    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updatePlaylists(WarptenCli*)));
+    cli->execute(&input);
+}
+
+void MainWindow::updatePlaylists(WarptenCli *cli)
+{
+    QString msg;
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        msg = "Error: " + cli->errorStr;
+        // TODO
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    foreach (const QString &name, json.keys()) {
+        playlistsTabWidget->addTab(new PlaylistTab(), name);
+
+    }
 }
