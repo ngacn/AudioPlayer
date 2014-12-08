@@ -96,11 +96,18 @@ func addPlaylist(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	name := r.Form.Get("name")
-	if err := player.AddPlaylist(name); err != nil {
-		fmt.Fprintf(w, name+" exists")
-		return nil
+	type Message struct {
+		Err, Name string
 	}
-	fmt.Fprintf(w, "success")
+	msg := Message{"", name}
+	if err := player.AddPlaylist(name); err != nil {
+		msg = Message{fmt.Sprintf("%s exists", name), name}
+	}
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
 	return nil
 }
 

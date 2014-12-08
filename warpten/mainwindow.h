@@ -27,6 +27,7 @@ private slots:
 
     void updateVersion(WarptenCli *cli);
     void updatePlaylists(WarptenCli *cli);
+    void updateNewPlaylist(WarptenCli *cli);
 
 private:
     void createActions();

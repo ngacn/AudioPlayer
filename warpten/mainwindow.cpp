@@ -35,7 +35,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newPlaylist()
 {
-    playlistsTabWidget->addTab(new PlaylistTab(), tr("NewList"));
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("InputDialog"),
+                                         tr("New Playlist:"), QLineEdit::Normal,
+                                         NULL, &ok);
+    if (ok && !text.isEmpty()) {
+        QString url = "http://127.0.0.1:7478/playlist/add";
+        HttpRequestInput input(url, "POST");
+        input.add_var("name", text);
+        WarptenCli *cli = new WarptenCli(this);
+        connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewPlaylist(WarptenCli*)));
+        cli->execute(&input);
+    }
 }
 
 void MainWindow::about()
@@ -148,5 +159,21 @@ void MainWindow::updatePlaylists(WarptenCli *cli)
     foreach (const QString &name, json.keys()) {
         playlistsTabWidget->addTab(new PlaylistTab(), name);
 
+    }
+}
+
+void MainWindow::updateNewPlaylist(WarptenCli *cli)
+{
+    QString msg;
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        msg = "Error: " + cli->errorStr;
+        // TODO
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (json["Err"].toString().isEmpty()) {
+        playlistsTabWidget->addTab(new PlaylistTab(), json["Name"].toString());
     }
 }
