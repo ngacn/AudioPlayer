@@ -15,7 +15,9 @@ MainWindow::MainWindow()
     requestPlaylists();
 
     playlistsTabWidget = new QTabWidget;
+    playlistsTabWidget->setTabsClosable(true);
     setCentralWidget(playlistsTabWidget);
+    connect(playlistsTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(requestCloseTab(int)));
 
     createActions();
     createMenus();
@@ -175,5 +177,34 @@ void MainWindow::updateNewPlaylist(WarptenCli *cli)
     QJsonObject json = loadDoc.object();
     if (json["Err"].toString().isEmpty()) {
         playlistsTabWidget->addTab(new PlaylistTab(), json["Name"].toString());
+    }
+}
+
+void MainWindow::requestCloseTab(int index)
+{
+    QString text = playlistsTabWidget->tabText(index);
+    QString url = "http://127.0.0.1:7478/playlist/del";
+    HttpRequestInput input(url, "POST");
+    input.add_var("name", text);
+    input.add_var("index", QString::number(index));
+    WarptenCli *cli = new WarptenCli(this);
+    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateCloseTab(WarptenCli*)));
+    cli->execute(&input);
+}
+
+void MainWindow::updateCloseTab(WarptenCli *cli)
+{
+    QString msg;
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        msg = "Error: " + cli->errorStr;
+        // TODO
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (json["Err"].toString().isEmpty()) {
+        int index = json["Index"].toInt();
+        delete playlistsTabWidget->widget(index);
     }
 }

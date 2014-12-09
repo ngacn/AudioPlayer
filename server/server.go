@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"syscall"
 	"warpten/player"
@@ -118,11 +119,21 @@ func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	name := r.Form.Get("name")
-	if err := player.DelPlaylist(name); err != nil {
-		fmt.Fprintf(w, name+" not exists")
-		return nil
+	index := r.Form.Get("index")
+	type Message struct {
+		Err, Name string
+		Index     int
 	}
-	fmt.Fprintf(w, "success")
+	i, _ := strconv.Atoi(index)
+	msg := Message{"", name, i}
+	if err := player.DelPlaylist(name); err != nil {
+		msg = Message{fmt.Sprintf("%s not exists", name), name, i}
+	}
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
 	return nil
 }
 
