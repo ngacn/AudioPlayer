@@ -2,15 +2,15 @@ package tracks
 
 import (
 	"errors"
-	"os/exec"
-	"runtime"
-	"strings"
+	"fmt"
+	"math/rand"
+	"time"
 )
 
 var (
 	ErrTrackNotExists = errors.New("Track not exists")
 
-	ErrNotImplemented = errors.New("Method not implemented")
+	ErrGenerateFailed = errors.New("Fail to generate UUID")
 )
 
 type Tracks map[string]*Track
@@ -34,26 +34,21 @@ func (tks Tracks) Track(uuid string) (*Track, bool) {
 	tk, exists := tks[uuid]
 	return tk, exists
 }
-
+func Uuidgen(r *rand.Rand) string { //基于随机数的UUID生成器，Linux默认的
+	return fmt.Sprintf("%x%x-%x-%x-%x-%x%x%x",
+		r.Int31(), r.Int31(),
+		r.Int31(),
+		(r.Int31()&0x0fff)|0x4000, //Generates a 32-bit Hex number of the form 4xxx (4 indicates the UUID version)
+		r.Int31()%0x3fff+0x8000,   //range [0x8000, 0xbfff]
+		r.Int31(), r.Int31(), r.Int31())
+}
 func (tks Tracks) AddTrack(path, playlist string) (string, error) {
-	// 使用了mac和linux自带的一个命令生成uuid
-	// windows暂时没有这个＝。＝
-	// 所以为了跨平台要自己实现这个生成uuid
+
 	var uuid string
-	switch os := runtime.GOOS; os {
-	case "darwin", "linux":
-		for {
-			out, err := exec.Command("uuidgen").Output()
-			if err != nil {
-				return "", err
-			}
-			uuid = strings.TrimSpace(string(out))
-			if _, exists := tks[uuid]; !exists {
-				break
-			}
-		}
-	default:
-		return "", ErrNotImplemented
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	uuid = Uuidgen(r)
+	if len(uuid) == 0 {
+		return "", ErrGenerateFailed
 	}
 	tk := &Track{path: path, playlist: playlist}
 	tks[uuid] = tk
