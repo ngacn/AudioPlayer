@@ -101,7 +101,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-    QSettings settings("Warpten", "Warpten Player");
+    QSettings settings("Warpten", "WarptenPlayer");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
@@ -110,7 +110,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("Warpten", "Warpten Player");
+    QSettings settings("Warpten", "WarptenPlayer");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 }
