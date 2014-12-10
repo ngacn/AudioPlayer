@@ -1,11 +1,10 @@
-// 程序的入口文件，-d可以启动服务器守护程序， 不带-d为发送测试命令的cli
+// 程序的入口文件，-d可以启动服务器守护程序
 package main
 
 import (
 	"flag"
 	"fmt"
 	"strings"
-	"warpten/client"
 	"warpten/player"
 	"warpten/server"
 )
@@ -47,12 +46,5 @@ func main() {
 		srv.Serve()
 		// 程序退出
 		return
-	}
-
-	// 创建restful api客户端程序
-	var cli *client.WarptenCli = client.NewWarptenCli(protoAddrParts[0], protoAddrParts[1])
-	// 解析命令，并向服务器发送请求
-	if err := cli.Cmd(flag.Args()...); err != nil {
-		fmt.Println("WarptenCli: =>", err)
 	}
 }
