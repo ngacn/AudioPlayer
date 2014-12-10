@@ -27,52 +27,52 @@ func Tracks() tracks.Tracks {
 	return tks
 }
 
-func Playlist(name string) ([]string, bool) {
-	return pls.Playlist(name)
+func Playlist(uuid string) (playlists.Playlist, bool) {
+	return pls.Playlist(uuid)
 }
 
-func AddPlaylist(name string) error {
+func AddPlaylist(name string) (string, error) {
 	return pls.AddPlaylist(name)
 }
 
-func DelPlaylist(name string) error {
-	uuids, exists := pls.Playlist(name)
+func DelPlaylist(uuid string) error {
+	pl, exists := pls.Playlist(uuid)
 	if !exists {
 		return playlists.ErrPlaylistNotExists
 	}
 
 	// 删除所有播放列表中uuid对应的track
-	for _, uuid := range uuids {
-		if err := tks.DelTrack(uuid); err != nil {
+	for _, tk_uuid := range pl.Tracks {
+		if err := tks.DelTrack(tk_uuid); err != nil {
 			return err
 		}
 	}
 
 	// 删除播放列表中的uuid
-	if err := pls.DelPlaylist(name); err != nil {
+	if err := pls.DelPlaylist(uuid); err != nil {
 		return err
 	}
 	return nil
 }
 
-func Track(uuid string) (*tracks.Track, bool) {
+func Track(uuid string) (tracks.Track, bool) {
 	tk, exists := tks.Track(uuid)
 	return tk, exists
 }
 
-func AddTrack(path, playlist string) error {
+func AddTrack(path, playlist string) (string, error) {
 	// 创建新track, 并获得新track的uuid
 	uuid, err := tks.AddTrack(path, playlist)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// 将uuid添加到对应的播放列表
 	_, exists := pls.Playlist(playlist)
 	if exists {
-		return pls.AddUUIDs(playlist, uuid)
+		return uuid, pls.AddUUIDs(playlist, uuid)
 	}
-	return playlists.ErrPlaylistNotExists
+	return "", playlists.ErrPlaylistNotExists
 }
 
 func DelTrack(uuid string) error {
@@ -80,7 +80,7 @@ func DelTrack(uuid string) error {
 	if !exists {
 		return tracks.ErrTrackNotExists
 	}
-	playlist := tk.Playlist()
+	playlist := tk.Playlist
 	// 删除uuid对应的track
 	if err := tks.DelTrack(uuid); err != nil {
 		return err

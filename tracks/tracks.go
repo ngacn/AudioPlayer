@@ -1,28 +1,23 @@
+// 所有track保存在tracks中，track属于哪个playlist只是track的一个tag，
+// 所以track在各个playlist中移动几乎没有消耗
+// track在daemon端只用uuid管理， track在播放列表的顺序只由client管理
 package tracks
 
 import (
 	"errors"
-	"fmt"
-	"math/rand"
-	"time"
+	"warpten/utils"
 )
 
 var (
 	ErrTrackNotExists = errors.New("Track not exists")
-
-	ErrGenerateFailed = errors.New("Fail to generate UUID")
 )
 
 type Tracks map[string]*Track
 
 // track结构中现在只有一个path， 之后还会添加信息
 type Track struct {
-	path     string
-	playlist string
-}
-
-func (tk Track) Playlist() string {
-	return tk.playlist
+	Path     string
+	Playlist string // playlist的uuid
 }
 
 func New() Tracks {
@@ -30,27 +25,14 @@ func New() Tracks {
 	return tks
 }
 
-func (tks Tracks) Track(uuid string) (*Track, bool) {
+func (tks Tracks) Track(uuid string) (Track, bool) {
 	tk, exists := tks[uuid]
-	return tk, exists
+	return *tk, exists
 }
-func Uuidgen(r *rand.Rand) string { //基于随机数的UUID生成器，Linux默认的
-	return fmt.Sprintf("%x%x-%x-%x-%x-%x%x%x",
-		r.Int31(), r.Int31(),
-		r.Int31(),
-		(r.Int31()&0x0fff)|0x4000, //Generates a 32-bit Hex number of the form 4xxx (4 indicates the UUID version)
-		r.Int31()%0x3fff+0x8000,   //range [0x8000, 0xbfff]
-		r.Int31(), r.Int31(), r.Int31())
-}
-func (tks Tracks) AddTrack(path, playlist string) (string, error) {
 
-	var uuid string
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	uuid = Uuidgen(r)
-	if len(uuid) == 0 {
-		return "", ErrGenerateFailed
-	}
-	tk := &Track{path: path, playlist: playlist}
+func (tks Tracks) AddTrack(path, playlist string) (string, error) {
+	uuid := utils.Uuidgen("track")
+	tk := &Track{Path: path, Playlist: playlist}
 	tks[uuid] = tk
 	return uuid, nil
 }

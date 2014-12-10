@@ -2,47 +2,49 @@ package playlists
 
 import (
 	"errors"
+	"warpten/utils"
 )
 
 var (
-	ErrPlaylistExists    = errors.New("Playlist already exists")
 	ErrPlaylistNotExists = errors.New("Playlist not exists")
-
-	// ErrIndexOutOfRange = errors.New("Track index out of range")
 )
 
-type Playlists map[string][]string
+type Playlists map[string]*Playlist
+
+type Playlist struct {
+	Name   string
+	Tracks []string // track的uuid
+}
 
 func New() Playlists {
-	pls := make(map[string][]string)
+	pls := make(map[string]*Playlist)
 	return pls
 }
 
-func (pls Playlists) Playlist(name string) ([]string, bool) {
-	pl, exists := pls[name]
-	return pl, exists
+func (pls Playlists) Playlist(uuid string) (Playlist, bool) {
+	pl, exists := pls[uuid]
+	return *pl, exists
 }
 
-func (pls Playlists) AddPlaylist(name string) error {
-	if _, exists := pls[name]; exists {
-		return ErrPlaylistExists
-	}
-	pls[name] = make([]string, 0)
-	return nil
+func (pls Playlists) AddPlaylist(name string) (string, error) {
+	uuid := utils.Uuidgen("playlist")
+	pl := &Playlist{Name: name, Tracks: make([]string, 0)}
+	pls[uuid] = pl
+	return uuid, nil
 }
 
-func (pls Playlists) DelPlaylist(name string) error {
-	if _, exists := pls[name]; exists {
-		pls[name] = make([]string, 0)
-		delete(pls, name)
+func (pls Playlists) DelPlaylist(uuid string) error {
+	if _, exists := pls[uuid]; exists {
+		pls[uuid].Tracks = make([]string, 0)
+		delete(pls, uuid)
 		return nil
 	}
 	return ErrPlaylistNotExists
 }
 
 func (pls Playlists) Clear() {
-	for name := range pls {
-		pls.DelPlaylist(name)
+	for uuid := range pls {
+		pls.DelPlaylist(uuid)
 	}
 }
 
@@ -50,22 +52,22 @@ func (pls Playlists) Len() int {
 	return len(pls)
 }
 
-func (pls Playlists) AddUUIDs(name string, uuids ...string) error {
-	if pl, exists := pls[name]; exists {
-		pls[name] = append(pl, uuids...)
+func (pls Playlists) AddUUIDs(pl_uuid string, tk_uuids ...string) error {
+	if pl, exists := pls[pl_uuid]; exists {
+		pls[pl_uuid].Tracks = append(pl.Tracks, tk_uuids...)
 		return nil
 	}
 	return ErrPlaylistNotExists
 }
 
-func (pls Playlists) DelUUIDs(name string, uuids ...string) error {
-	if pl, exists := pls[name]; exists {
+func (pls Playlists) DelUUIDs(pl_uuid string, tk_uuids ...string) error {
+	if pl, exists := pls[pl_uuid]; exists {
 		// wtf???
 		// 删除一个slice中的几个元素有没有更好的方法？
-		for _, uuid := range uuids {
-			for i, u := range pl {
+		for _, uuid := range tk_uuids {
+			for i, u := range pl.Tracks {
 				if uuid == u {
-					pls[name] = append(pl[:i], pl[i+1:]...)
+					pls[pl_uuid].Tracks = append(pl.Tracks[:i], pl.Tracks[i+1:]...)
 					break
 				}
 			}
