@@ -35,7 +35,7 @@ func main() {
 	// 说明是启动服务器端的功能
 	if *flDaemon {
 		// 初始化播放器
-		player.Init()
+		player.New()
 		// 创建restful api服务器端
 		srv, err := server.NewWarptenSrv(protoAddrParts[0], protoAddrParts[1])
 		if err != nil {

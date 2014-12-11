@@ -12,8 +12,9 @@ var (
 type Playlists map[string]*Playlist
 
 type Playlist struct {
-	Name   string
-	Tracks []string // track的uuid
+	Uuid   string   `json:"uuid"`
+	Name   string   `json:"name"`
+	Tracks []string `json:"tracks"` // track的uuid
 }
 
 func New() Playlists {
@@ -26,11 +27,11 @@ func (pls Playlists) Playlist(uuid string) (Playlist, bool) {
 	return *pl, exists
 }
 
-func (pls Playlists) AddPlaylist(name string) (string, error) {
+func (pls Playlists) AddPlaylist(name string) (Playlist, error) {
 	uuid := utils.Uuidgen("playlist")
-	pl := &Playlist{Name: name, Tracks: make([]string, 0)}
+	pl := &Playlist{Uuid: uuid, Name: name, Tracks: make([]string, 0)}
 	pls[uuid] = pl
-	return uuid, nil
+	return *pl, nil
 }
 
 func (pls Playlists) DelPlaylist(uuid string) error {

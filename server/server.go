@@ -11,9 +11,13 @@ import (
 	"strings"
 	"syscall"
 	"warpten/player"
-	"warpten/playlists"
-	"warpten/tracks"
 )
+
+// json的返回结构
+type JsonResponse struct {
+	Err    string      `json:"err"`
+	Return interface{} `json:"return"`
+}
 
 // 这相当于一个声明一个回调函数， 不同的请求用不同的函数处理
 type HttpApiFunc func(w http.ResponseWriter, r *http.Request) error
@@ -57,12 +61,8 @@ func createRouter() (*http.ServeMux, error) {
 // 获取播放器版本
 func getVersion(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
-	var ret = struct {
-		Err, Version string
-	}{
-		"", player.Version(),
-	}
-	b, err := json.Marshal(ret)
+	var response = JsonResponse{"", player.Version()}
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -73,13 +73,8 @@ func getVersion(w http.ResponseWriter, r *http.Request) error {
 // 获取所有播放列表
 func getPlaylists(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
-	var ret = struct {
-		Err       string
-		Playlists playlists.Playlists
-	}{
-		"", player.Playlists(),
-	}
-	b, err := json.Marshal(ret)
+	var response = JsonResponse{"", player.Playlists()}
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -93,20 +88,16 @@ func getPlaylist(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	type Return struct {
-		Err      string
-		Playlist playlists.Playlist
-	}
-	var ret Return
+	var response JsonResponse
 	uuid := r.Form.Get("uuid")
 	if pl, exists := player.Playlist(uuid); exists {
-		ret = Return{"", pl}
+		response = JsonResponse{"", pl}
 	} else {
-		ret = Return{
+		response = JsonResponse{
 			fmt.Sprintf("%s not exists", uuid), pl,
 		}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -120,17 +111,14 @@ func addPlaylist(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	type Return struct {
-		Err, Name, Uuid string
-	}
-	var ret Return
+	var response JsonResponse
 	name := r.Form.Get("name")
-	if uuid, err := player.AddPlaylist(name); err != nil {
-		ret = Return{err.Error(), name, uuid}
+	if pl, err := player.AddPlaylist(name); err != nil {
+		response = JsonResponse{err.Error(), pl}
 	} else {
-		ret = Return{"", name, uuid}
+		response = JsonResponse{"", pl}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -144,20 +132,16 @@ func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	type Return struct {
-		Err   string
-		Index int
-	}
-	var ret Return
+	var response JsonResponse
 	uuid := r.Form.Get("uuid")
 	index := r.Form.Get("index")
 	i, _ := strconv.Atoi(index)
 	if err := player.DelPlaylist(uuid); err != nil {
-		ret = Return{err.Error(), i}
+		response = JsonResponse{err.Error(), i}
 	} else {
-		ret = Return{"", i}
+		response = JsonResponse{"", i}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -168,14 +152,8 @@ func delPlaylist(w http.ResponseWriter, r *http.Request) error {
 // 获取所有tracks
 func getTracks(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("Content-Type", "application/json")
-
-	var ret = struct {
-		Err    string
-		Tracks tracks.Tracks
-	}{
-		"", player.Tracks(),
-	}
-	b, err := json.Marshal(ret)
+	var response = JsonResponse{"", player.Tracks()}
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -189,20 +167,16 @@ func getTrack(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
+	var response JsonResponse
 	uuid := r.Form.Get("uuid")
-	type Return struct {
-		Err   string
-		Track tracks.Track
-	}
-	var ret Return
 	if tk, exists := player.Track(uuid); exists {
-		ret = Return{"", tk}
+		response = JsonResponse{"", tk}
 	} else {
-		ret = Return{
+		response = JsonResponse{
 			fmt.Sprintf("%s not exists", uuid), tk,
 		}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -216,19 +190,14 @@ func addTrack(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	type Return struct {
-		Err, Uuid string
-	}
-	var ret Return
+	var response JsonResponse
 	path, playlist := r.Form.Get("path"), r.Form.Get("playlist")
-	if uuid, err := player.AddTrack(path, playlist); err != nil {
-		ret = Return{err.Error(), uuid}
+	if tk, err := player.AddTrack(path, playlist); err != nil {
+		response = JsonResponse{err.Error(), tk}
 	} else {
-		ret = Return{
-			"", uuid,
-		}
+		response = JsonResponse{"", tk}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}
@@ -242,17 +211,14 @@ func delTrack(w http.ResponseWriter, r *http.Request) error {
 	if err := parseForm(r); err != nil {
 		return err
 	}
-	type Return struct {
-		Err string
-	}
-	var ret Return
+	var response JsonResponse
 	uuid := r.Form.Get("uuid")
 	if err := player.DelTrack(uuid); err != nil {
-		ret = Return{err.Error()}
+		response = JsonResponse{err.Error(), ""}
 	} else {
-		ret = Return{""}
+		response = JsonResponse{"", ""}
 	}
-	b, err := json.Marshal(ret)
+	b, err := json.Marshal(response)
 	if err != nil {
 		return err
 	}

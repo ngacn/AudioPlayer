@@ -16,8 +16,9 @@ type Tracks map[string]*Track
 
 // track结构中现在只有一个path， 之后还会添加信息
 type Track struct {
-	Path     string
-	Playlist string // playlist的uuid
+	Uuid     string `json:"uuid"`
+	Path     string `json:"path"`
+	Playlist string `json:"playlist"` // playlist的uuid
 }
 
 func New() Tracks {
@@ -30,11 +31,11 @@ func (tks Tracks) Track(uuid string) (Track, bool) {
 	return *tk, exists
 }
 
-func (tks Tracks) AddTrack(path, playlist string) (string, error) {
+func (tks Tracks) AddTrack(path, playlist string) (Track, error) {
 	uuid := utils.Uuidgen("track")
-	tk := &Track{Path: path, Playlist: playlist}
+	tk := &Track{Uuid: uuid, Path: path, Playlist: playlist}
 	tks[uuid] = tk
-	return uuid, nil
+	return *tk, nil
 }
 
 func (tks Tracks) DelTrack(uuid string) error {

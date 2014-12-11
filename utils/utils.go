@@ -11,7 +11,7 @@ var Uuidgen func(string) string
 // 使用闭包初始化Uuidgen
 // uuid第2位是1开头表示track uuid
 // 2开头表示playlist uuid
-func _uuidgen() func(string) string {
+func uuidgen() func(string) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return func(sig string) string { //基于随机数的UUID生成器，Linux默认的
 		var i int32
@@ -31,5 +31,5 @@ func _uuidgen() func(string) string {
 }
 
 func init() {
-	Uuidgen = _uuidgen()
+	Uuidgen = uuidgen()
 }

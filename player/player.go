@@ -9,7 +9,7 @@ import (
 // 播放器版本
 var version string
 
-// 所有播放列表, 以播放列表名字为key， track uuid的列表为值
+// 所有播放列表, 以播放列表uuid为key， Playlist结构为值
 var pls playlists.Playlists
 
 // 所有track， 以uuid为key, Track结构为值
@@ -31,7 +31,7 @@ func Playlist(uuid string) (playlists.Playlist, bool) {
 	return pls.Playlist(uuid)
 }
 
-func AddPlaylist(name string) (string, error) {
+func AddPlaylist(name string) (playlists.Playlist, error) {
 	return pls.AddPlaylist(name)
 }
 
@@ -60,19 +60,19 @@ func Track(uuid string) (tracks.Track, bool) {
 	return tk, exists
 }
 
-func AddTrack(path, playlist string) (string, error) {
+func AddTrack(path, playlist string) (tracks.Track, error) {
 	// 创建新track, 并获得新track的uuid
-	uuid, err := tks.AddTrack(path, playlist)
+	tk, err := tks.AddTrack(path, playlist)
 	if err != nil {
-		return "", err
+		return tk, err
 	}
 
 	// 将uuid添加到对应的播放列表
 	_, exists := pls.Playlist(playlist)
 	if exists {
-		return uuid, pls.AddUUIDs(playlist, uuid)
+		return tk, pls.AddUUIDs(playlist, tk.Uuid)
 	}
-	return "", playlists.ErrPlaylistNotExists
+	return tk, playlists.ErrPlaylistNotExists
 }
 
 func DelTrack(uuid string) error {
@@ -94,7 +94,7 @@ func DelTrack(uuid string) error {
 	return playlists.ErrPlaylistNotExists
 }
 
-func Init() {
+func New() {
 	version = "0.0"
 	// 初始化播放列表， 至少有一个叫Default的列表
 	pls = playlists.New()
