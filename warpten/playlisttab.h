@@ -7,12 +7,15 @@ class PlaylistTab : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PlaylistTab(QWidget *parent = 0);
+    explicit PlaylistTab(const QString &uuid, QWidget *parent = 0);
+    const QString& getUuid();
 
 signals:
 
 public slots:
 
+private:
+    QString uuid;
 };
 
 #endif // PLAYLISTTAB_H

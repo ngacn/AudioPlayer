@@ -2,8 +2,8 @@
 
 #include "playlisttab.h"
 
-PlaylistTab::PlaylistTab(QWidget *parent) :
-    QWidget(parent)
+PlaylistTab::PlaylistTab(const QString &uuid, QWidget *parent) :
+        QWidget(parent), uuid(uuid)
 {
     QListWidget *tracksListBox = new QListWidget;
     QStringList tracks;
@@ -15,4 +15,9 @@ PlaylistTab::PlaylistTab(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(tracksListBox);
     setLayout(layout);
+}
+
+const QString& PlaylistTab::getUuid()
+{
+    return uuid;
 }

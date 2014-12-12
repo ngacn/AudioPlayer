@@ -56,10 +56,10 @@ QString WarptenCli::http_attribute_encode(QString attribute_name, QString input)
     for (int i = 0; i < input_c.length(); i++) {
         c = input_c.at(i);
         if (
-                (c >= '0' && c <= '9')
-                || (c >= 'A' && c <= 'Z')
-                || (c >= 'a' && c <= 'z')
-                ) {
+                        (c >= '0' && c <= '9')
+                        || (c >= 'A' && c <= 'Z')
+                        || (c >= 'a' && c <= 'z')
+                        ) {
             result_utf8 += c;
         }
         else {
@@ -145,7 +145,7 @@ void WarptenCli::execute(HttpRequestInput *input) {
 }
 
 WarptenCli::WarptenCli(QObject *parent) :
-    QObject(parent), networkManager(NULL)
+        QObject(parent), networkManager(NULL)
 {
     qsrand(QDateTime::currentDateTime().toTime_t());
     networkManager = new QNetworkAccessManager(this);

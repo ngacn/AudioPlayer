@@ -124,18 +124,19 @@ void MainWindow::requestVersion()
     cli->execute(&input);
 }
 
-void MainWindow::updateVersion(WarptenCli *cli) {
-    QString msg;
-
-    if (cli->errorType == QNetworkReply::NoError) {
-        // communication was successful
-        msg = "Success - Response: " + cli->response;
-    } else {
+void MainWindow::updateVersion(WarptenCli *cli)
+{
+    if (cli->errorType != QNetworkReply::NoError) {
         // an error occurred
-        msg = "Error: " + cli->errorStr;
+        return;
     }
-
-    version = cli->response;
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
+    }
+    version = json["return"].toString();
 }
 
 void MainWindow::requestPlaylists()
@@ -149,43 +150,48 @@ void MainWindow::requestPlaylists()
 
 void MainWindow::updatePlaylists(WarptenCli *cli)
 {
-    QString msg;
     if (cli->errorType != QNetworkReply::NoError) {
         // an error occurred
-        msg = "Error: " + cli->errorStr;
-        // TODO
         return;
     }
     QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
     QJsonObject json = loadDoc.object();
-    foreach (const QString &name, json.keys()) {
-        playlistsTabWidget->addTab(new PlaylistTab(), name);
-
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
+    }
+    QJsonObject pls = json["return"].toObject();
+    foreach (const QJsonValue pl, pls) {
+        QString name = pl.toObject()["name"].toString();
+        QString uuid = pl.toObject()["uuid"].toString();
+        playlistsTabWidget->addTab(new PlaylistTab(uuid), name);
     }
 }
 
 void MainWindow::updateNewPlaylist(WarptenCli *cli)
 {
-    QString msg;
     if (cli->errorType != QNetworkReply::NoError) {
         // an error occurred
-        msg = "Error: " + cli->errorStr;
-        // TODO
         return;
     }
     QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
     QJsonObject json = loadDoc.object();
-    if (json["Err"].toString().isEmpty()) {
-        playlistsTabWidget->addTab(new PlaylistTab(), json["Name"].toString());
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
     }
+    QJsonObject pl = json["return"].toObject();
+    QString name = pl["name"].toString();
+    QString uuid = pl["uuid"].toString();
+    playlistsTabWidget->addTab(new PlaylistTab(uuid), name);
 }
 
 void MainWindow::requestCloseTab(int index)
 {
-    QString text = playlistsTabWidget->tabText(index);
+    PlaylistTab *tab = static_cast<PlaylistTab*>(playlistsTabWidget->widget(index));
     QString url = "http://127.0.0.1:7478/playlist/del";
     HttpRequestInput input(url, "POST");
-    input.add_var("name", text);
+    input.add_var("uuid", tab->getUuid());
     input.add_var("index", QString::number(index));
     WarptenCli *cli = new WarptenCli(this);
     connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateCloseTab(WarptenCli*)));
@@ -194,17 +200,16 @@ void MainWindow::requestCloseTab(int index)
 
 void MainWindow::updateCloseTab(WarptenCli *cli)
 {
-    QString msg;
     if (cli->errorType != QNetworkReply::NoError) {
         // an error occurred
-        msg = "Error: " + cli->errorStr;
-        // TODO
         return;
     }
     QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
     QJsonObject json = loadDoc.object();
-    if (json["Err"].toString().isEmpty()) {
-        int index = json["Index"].toInt();
-        delete playlistsTabWidget->widget(index);
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
     }
+    int index = json["return"].toInt();
+    delete playlistsTabWidget->widget(index);
 }

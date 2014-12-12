@@ -35,12 +35,11 @@ func createRouter() (*http.ServeMux, error) {
 		},
 		"POST": {
 			"/playlist/add": addPlaylist,
-			"/track/add":    addTrack,
-		},
-		"DELETE": {
 			"/playlist/del": delPlaylist,
+			"/track/add":    addTrack,
 			"/track/del":    delTrack,
 		},
+		"DELETE": {},
 	}
 
 	for method, routes := range m {
