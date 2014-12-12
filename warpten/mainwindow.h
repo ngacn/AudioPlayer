@@ -22,11 +22,13 @@ protected:
     void closeEvent(QCloseEvent *event);
 
 private slots:
+    void newTrack();
     void newPlaylist();
     void about();
 
     void updateVersion(WarptenCli *cli);
     void updatePlaylists(WarptenCli *cli);
+    void updateNewTrack(WarptenCli *cli);
     void updateNewPlaylist(WarptenCli *cli);
     void updateCloseTab(WarptenCli *cli);
     void requestCloseTab(int index);
@@ -44,6 +46,7 @@ private:
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *helpMenu;
+    QAction *newTrackAct;
     QAction *newPlaylistAct;
     QAction *exitAct;
     QAction *aboutAct;

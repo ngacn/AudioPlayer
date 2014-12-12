@@ -35,6 +35,28 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
+void MainWindow::newTrack()
+{
+    QStringList files = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to add",
+                            QDir::homePath());
+    PlaylistTab *curTab = static_cast<PlaylistTab*>(playlistsTabWidget->currentWidget());
+    QString curUuid = curTab->getUuid();
+    QStringList::Iterator it = files.begin();
+    while(it != files.end()) {
+        QString url = "http://127.0.0.1:7478/track/add";
+        HttpRequestInput input(url, "POST");
+        input.add_var("path", *it);
+        input.add_var("playlist", curUuid);
+        WarptenCli *cli = new WarptenCli(this);
+        connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewTrack(WarptenCli*)));
+        cli->execute(&input);
+
+        ++it;
+    }
+}
+
 void MainWindow::newPlaylist()
 {
     bool ok;
@@ -59,8 +81,13 @@ void MainWindow::about()
 
 void MainWindow::createActions()
 {
+    newTrackAct = new QAction(tr("&Add file(s)"), this);
+    newTrackAct->setShortcuts(QKeySequence::Open);
+    newTrackAct->setStatusTip(tr("Add file(s) to current playlist"));
+    connect(newTrackAct, SIGNAL(triggered()), this, SLOT(newTrack()));
+
     newPlaylistAct = new QAction(QIcon(":/images/new.png"), tr("&New playlist"), this);
-    newPlaylistAct->setShortcuts(QKeySequence::New);
+    newPlaylistAct->setShortcuts(QKeySequence::AddTab);
     newPlaylistAct->setStatusTip(tr("Create a new playlist"));
     connect(newPlaylistAct, SIGNAL(triggered()), this, SLOT(newPlaylist()));
 
@@ -81,6 +108,8 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newTrackAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(newPlaylistAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
@@ -166,6 +195,25 @@ void MainWindow::updatePlaylists(WarptenCli *cli)
         QString uuid = pl.toObject()["uuid"].toString();
         playlistsTabWidget->addTab(new PlaylistTab(uuid), name);
     }
+}
+
+void MainWindow::updateNewTrack(WarptenCli *cli)
+{
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
+    }
+    PlaylistTab *curTab = static_cast<PlaylistTab*>(playlistsTabWidget->currentWidget());
+    QJsonObject tk = json["return"].toObject();
+    QString path = tk["path"].toString();
+    QString uuid = tk["uuid"].toString();
+    curTab->addTrack(uuid, path);
 }
 
 void MainWindow::updateNewPlaylist(WarptenCli *cli)
