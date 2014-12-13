@@ -1,6 +1,7 @@
 #include <QtWidgets>
 
 #include "playlisttab.h"
+#include "warptencli.h"
 
 PlaylistTab::PlaylistTab(const QString &uuid, QWidget *parent) :
         QWidget(parent), uuid(uuid)
@@ -19,7 +20,49 @@ void PlaylistTab::addTrack(const QString &uuid, const QString &path)
     tracksListBox->addItem(item);
 }
 
+void PlaylistTab::delTrack(const QString &uuid, int row)
+{
+    QString url = "http://127.0.0.1:7478/track/del";
+    HttpRequestInput input(url, "POST");
+    input.add_var("uuid", uuid);
+    input.add_var("index", QString::number(row));
+    WarptenCli *cli = new WarptenCli(this);
+    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateDelTrack(WarptenCli*)));
+    cli->execute(&input);
+}
+
+void PlaylistTab::updateDelTrack(WarptenCli *cli)
+{
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
+    }
+    int row = json["return"].toInt();
+    delete tracksListBox->item(row);
+}
+
 const QString& PlaylistTab::getUuid()
 {
     return uuid;
+}
+
+void PlaylistTab::contextMenuEvent(QContextMenuEvent *e)
+{
+    QPoint p = tracksListBox->mapFromGlobal(e->globalPos());
+    QListWidgetItem *item = tracksListBox->itemAt(p);
+    if (item) {
+        QMenu *contextMenu = new QMenu(tracksListBox);
+        QAction *delTrackAct = new QAction(tr("&Delete track"), tracksListBox);
+        contextMenu->addAction(delTrackAct);
+        QAction *triggeredAct = contextMenu->exec(e->globalPos());
+        if (triggeredAct == delTrackAct) {
+            delTrack(item->data(Qt::UserRole).toString(), tracksListBox->row(item));
+        }
+    }
 }

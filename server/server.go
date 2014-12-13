@@ -212,10 +212,12 @@ func delTrack(w http.ResponseWriter, r *http.Request) error {
 	}
 	var response JsonResponse
 	uuid := r.Form.Get("uuid")
+	index := r.Form.Get("index")
+	i, _ := strconv.Atoi(index)
 	if err := player.DelTrack(uuid); err != nil {
-		response = JsonResponse{err.Error(), ""}
+		response = JsonResponse{err.Error(), i}
 	} else {
-		response = JsonResponse{"", ""}
+		response = JsonResponse{"", i}
 	}
 	b, err := json.Marshal(response)
 	if err != nil {

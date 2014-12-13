@@ -5,6 +5,8 @@
 
 class QListWidget;
 
+class WarptenCli;
+
 class PlaylistTab : public QWidget
 {
     Q_OBJECT
@@ -15,9 +17,13 @@ public:
 
 signals:
 
-public slots:
+private slots:
+    void delTrack(const QString &uuid, int row);
+    void updateDelTrack(WarptenCli *cli);
 
 private:
+    void contextMenuEvent(QContextMenuEvent *e);
+
     QString uuid;
     QListWidget *tracksListBox;
 };
