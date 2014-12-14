@@ -22,13 +22,12 @@ void PlaylistTab::addTrack(const QString &uuid, const QString &path)
 
 void PlaylistTab::delTrack(const QString &uuid, int row)
 {
-    QString url = "http://127.0.0.1:7478/track/del";
-    HttpRequestInput input(url, "POST");
-    input.add_var("uuid", uuid);
-    input.add_var("index", QString::number(row));
+    QUrlQuery query;
+    query.addQueryItem("uuid", uuid);
+    query.addQueryItem("index", QString::number(row));
     WarptenCli *cli = new WarptenCli(this);
     connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateDelTrack(WarptenCli*)));
-    cli->execute(&input);
+    cli->execute("POST", "/track/del", query);
 }
 
 void PlaylistTab::updateDelTrack(WarptenCli *cli)

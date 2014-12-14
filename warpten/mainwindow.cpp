@@ -45,13 +45,12 @@ void MainWindow::newTrack()
     QString curUuid = curTab->getUuid();
     QStringList::Iterator it = files.begin();
     while(it != files.end()) {
-        QString url = "http://127.0.0.1:7478/track/add";
-        HttpRequestInput input(url, "POST");
-        input.add_var("path", *it);
-        input.add_var("playlist", curUuid);
+        QUrlQuery query;
+        query.addQueryItem("path", *it);
+        query.addQueryItem("playlist", curUuid);
         WarptenCli *cli = new WarptenCli(this);
         connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewTrack(WarptenCli*)));
-        cli->execute(&input);
+        cli->execute("POST", "/track/add", query);
 
         ++it;
     }
@@ -64,12 +63,11 @@ void MainWindow::newPlaylist()
                                          tr("New Playlist:"), QLineEdit::Normal,
                                          NULL, &ok);
     if (ok && !text.isEmpty()) {
-        QString url = "http://127.0.0.1:7478/playlist/add";
-        HttpRequestInput input(url, "POST");
-        input.add_var("name", text);
+        QUrlQuery query;
+        query.addQueryItem("name", text);
         WarptenCli *cli = new WarptenCli(this);
         connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewPlaylist(WarptenCli*)));
-        cli->execute(&input);
+        cli->execute("POST", "/playlist/add", query);
     }
 }
 
@@ -146,11 +144,10 @@ void MainWindow::writeSettings()
 
 void MainWindow::requestVersion()
 {
-    QString url = "http://127.0.0.1:7478/version";
-    HttpRequestInput input(url, "GET");
+    QUrlQuery query;
     WarptenCli *cli = new WarptenCli(this);
     connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateVersion(WarptenCli*)));
-    cli->execute(&input);
+    cli->execute("GET", "/version", query);
 }
 
 void MainWindow::updateVersion(WarptenCli *cli)
@@ -170,11 +167,10 @@ void MainWindow::updateVersion(WarptenCli *cli)
 
 void MainWindow::requestPlaylists()
 {
-    QString url = "http://127.0.0.1:7478/playlists";
-    HttpRequestInput input(url, "GET");
+    QUrlQuery query;
     WarptenCli *cli = new WarptenCli(this);
     connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updatePlaylists(WarptenCli*)));
-    cli->execute(&input);
+    cli->execute("GET", "/playlists", query);
 }
 
 void MainWindow::updatePlaylists(WarptenCli *cli)
@@ -237,13 +233,12 @@ void MainWindow::updateNewPlaylist(WarptenCli *cli)
 void MainWindow::requestCloseTab(int index)
 {
     PlaylistTab *tab = static_cast<PlaylistTab*>(playlistsTabWidget->widget(index));
-    QString url = "http://127.0.0.1:7478/playlist/del";
-    HttpRequestInput input(url, "POST");
-    input.add_var("uuid", tab->getUuid());
-    input.add_var("index", QString::number(index));
+    QUrlQuery query;
+    query.addQueryItem("uuid", tab->getUuid());
+    query.addQueryItem("index", QString::number(index));
     WarptenCli *cli = new WarptenCli(this);
     connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateCloseTab(WarptenCli*)));
-    cli->execute(&input);
+    cli->execute("POST", "/playlist/del", query);
 }
 
 void MainWindow::updateCloseTab(WarptenCli *cli)
