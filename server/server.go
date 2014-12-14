@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
-	"syscall"
 	"warpten/player"
 )
 
@@ -262,8 +260,6 @@ func NewWarptenSrv(proto, addr string) (Server, error) {
 	switch proto {
 	case "tcp":
 		return setupTcpHttp(addr)
-	case "unix":
-		return setupUnixHttp(addr)
 	default:
 		return nil, fmt.Errorf("Invalid protocol format.")
 	}
@@ -277,29 +273,6 @@ func setupTcpHttp(addr string) (*HttpServer, error) {
 
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		return nil, err
-	}
-
-	return &HttpServer{&http.Server{Addr: addr, Handler: r}, l}, nil
-}
-
-func setupUnixHttp(addr string) (*HttpServer, error) {
-	r, err := createRouter()
-	if err != nil {
-		return nil, err
-	}
-
-	if err := syscall.Unlink(addr); err != nil && !os.IsNotExist(err) {
-		return nil, err
-	}
-	mask := syscall.Umask(0777)
-	defer syscall.Umask(mask)
-
-	l, err := net.Listen("unix", addr)
-	if err != nil {
-		return nil, err
-	}
-	if err := os.Chmod(addr, 0660); err != nil {
 		return nil, err
 	}
 
