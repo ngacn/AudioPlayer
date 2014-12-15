@@ -102,7 +102,7 @@ qt客户端目前。。
 
 
 ###　Window下编译环境配置
-1.下载golang：https://golang.org/dl/，选go1.4.windows-amd64.msi下载并安装
+1.下载golang：https://golang.org/dl/ ，选go1.4.windows-amd64.msi下载并安装
 
 2.配置环境变量
 ```
@@ -120,7 +120,7 @@ GOROOT=C:\Go（go安装目录要根据具体路径修改）
 go install warpten/warpten-daemon
 ```  
 
-6.下载qt环境http://www.qt.io/download-open-source/#，选择Qt 5.4.0 for Windows 32-bit (MinGW 4.9.1, 852 MB)下载并安装
+6.下载qt环境http://www.qt.io/download-open-source/# ，选择Qt 5.4.0 for Windows 32-bit (MinGW 4.9.1, 852 MB)下载并安装
 
 7.qtcreator打开src/warpten/warpten.pro, 不用多说
 
