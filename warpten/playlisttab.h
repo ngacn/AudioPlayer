@@ -2,6 +2,7 @@
 #define PLAYLISTTAB_H
 
 #include <QWidget>
+#include <QListWidgetItem>
 
 class QListWidget;
 
@@ -20,6 +21,7 @@ signals:
 private slots:
     void delTrack(const QString &uuid, int row);
     void updateDelTrack(WarptenCli *cli);
+    void onDoubleClicked(QListWidgetItem *item);
 
 private:
     void contextMenuEvent(QContextMenuEvent *e);

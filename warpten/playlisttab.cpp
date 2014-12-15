@@ -9,6 +9,7 @@ PlaylistTab::PlaylistTab(const QString &uuid, QWidget *parent) :
     tracksListBox = new QListWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(tracksListBox);
+    connect(tracksListBox, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onDoubleClicked(QListWidgetItem*)));
     setLayout(layout);
 }
 
@@ -17,6 +18,7 @@ void PlaylistTab::addTrack(const QString &uuid, const QString &path)
     QListWidgetItem *item = new QListWidgetItem;
     item->setData(Qt::DisplayRole, path);
     item->setData(Qt::UserRole, uuid);
+
     tracksListBox->addItem(item);
 }
 
@@ -65,4 +67,10 @@ void PlaylistTab::contextMenuEvent(QContextMenuEvent *e)
             delTrack(item->data(Qt::UserRole).toString(), tracksListBox->row(item));
         }
     }
+}
+
+
+void PlaylistTab::onDoubleClicked(QListWidgetItem *item)
+{
+    qDebug() << item->text();
 }
