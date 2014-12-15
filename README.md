@@ -1,4 +1,5 @@
 这是测试用的repo, 会提交一些乱七八糟的东西，不要在意。。  
+更新了win下环境搭建，往下拉到最下面
 
 至今为止的代码结构  
 ------------------  
@@ -98,3 +99,29 @@ qtcreator打开src/warpten/warpten.pro, 不用多说
 
 qt客户端目前。。
 ![20141212192440](https://cloud.githubusercontent.com/assets/9798546/5411363/6140e530-823a-11e4-91a2-d9584423bb50.png)
+
+
+###　Window下编译环境配置
+1.下载golang：https://golang.org/dl/ ，选go1.4.windows-amd64.msi下载并安装
+
+2.配置环境变量
+```
+path加入 C:\Go\bin
+GOPATH=D:\MyProjects\GIT\AudioPlayer（代码目录要根据具体路径修改）
+GOROOT=C:\Go（go安装目录要根据具体路径修改）
+```
+
+3.打开cmd，输入go，如果出现提示语，证明已经配好go环境
+
+4.在AudioPlayer目录下建立目录src/warpten，并把所有文件与目录拷贝一份到src/warpten
+
+5.编译warpten-daemon
+```
+go install warpten/warpten-daemon
+```  
+
+6.下载qt环境http://www.qt.io/download-open-source/# ，选择Qt 5.4.0 for Windows 32-bit (MinGW 4.9.1, 852 MB)下载并安装
+
+7.qtcreator打开src/warpten/warpten.pro, 不用多说
+
+8.剩下的步骤都一样
