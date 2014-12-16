@@ -36,6 +36,7 @@ func createRouter() (*http.ServeMux, error) {
 			"/playlist/del": delPlaylist,
 			"/track/add":    addTrack,
 			"/track/del":    delTrack,
+			"/track/play":   playTrack,
 		},
 		"DELETE": {},
 	}
@@ -217,6 +218,26 @@ func delTrack(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		response = JsonResponse{"", i}
 	}
+	b, err := json.Marshal(response)
+	if err != nil {
+		return err
+	}
+	w.Write(b)
+	return nil
+}
+
+// 播放指定uuid的track
+func playTrack(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Content-Type", "application/json")
+	if err := parseForm(r); err != nil {
+		return err
+	}
+	var response JsonResponse
+	uuid := r.Form.Get("uuid")
+	// index := r.Form.Get("index")
+	// i, _ := strconv.Atoi(index)
+	// TODO play the track
+	response = JsonResponse{"", uuid}
 	b, err := json.Marshal(response)
 	if err != nil {
 		return err

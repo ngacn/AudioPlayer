@@ -2,9 +2,9 @@
 #define PLAYLISTTAB_H
 
 #include <QWidget>
-#include <QListWidgetItem>
 
 class QListWidget;
+class QListWidgetItem;
 
 class WarptenCli;
 
@@ -21,6 +21,7 @@ signals:
 private slots:
     void delTrack(const QString &uuid, int row);
     void updateDelTrack(WarptenCli *cli);
+    void updatePlayTrack(WarptenCli *cli);
     void onDoubleClicked(QListWidgetItem *item);
 
 private:

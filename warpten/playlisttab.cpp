@@ -18,7 +18,6 @@ void PlaylistTab::addTrack(const QString &uuid, const QString &path)
     QListWidgetItem *item = new QListWidgetItem;
     item->setData(Qt::DisplayRole, path);
     item->setData(Qt::UserRole, uuid);
-
     tracksListBox->addItem(item);
 }
 
@@ -28,7 +27,7 @@ void PlaylistTab::delTrack(const QString &uuid, int row)
     query.addQueryItem("uuid", uuid);
     query.addQueryItem("index", QString::number(row));
     WarptenCli *cli = new WarptenCli(this);
-    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateDelTrack(WarptenCli*)));
+    connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updateDelTrack(WarptenCli*)));
     cli->execute("POST", "/track/del", query);
 }
 
@@ -68,8 +67,28 @@ void PlaylistTab::contextMenuEvent(QContextMenuEvent *e)
     }
 }
 
-
 void PlaylistTab::onDoubleClicked(QListWidgetItem *item)
 {
-    qDebug() << item->text();
+    QUrlQuery query;
+    query.addQueryItem("uuid", item->data(Qt::UserRole).toString());
+    query.addQueryItem("index", QString::number(tracksListBox->row(item)));
+    WarptenCli *cli = new WarptenCli(this);
+    connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updatePlayTrack(WarptenCli*)));
+    cli->execute("POST", "/track/play", query);
+}
+
+void PlaylistTab::updatePlayTrack(WarptenCli *cli)
+{
+    if (cli->errorType != QNetworkReply::NoError) {
+        // an error occurred
+        return;
+    }
+    QJsonDocument loadDoc(QJsonDocument::fromJson(cli->response));
+    QJsonObject json = loadDoc.object();
+    if (!json["err"].toString().isEmpty()) {
+        qDebug() << json["err"].toString();
+        return;
+    }
+    QString uuid = json["return"].toString();
+    qDebug() << "playing " << uuid;
 }

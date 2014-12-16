@@ -49,7 +49,7 @@ void MainWindow::newTrack()
         query.addQueryItem("path", *it);
         query.addQueryItem("playlist", curUuid);
         WarptenCli *cli = new WarptenCli(this);
-        connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewTrack(WarptenCli*)));
+        connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updateNewTrack(WarptenCli*)));
         cli->execute("POST", "/track/add", query);
 
         ++it;
@@ -66,7 +66,7 @@ void MainWindow::newPlaylist()
         QUrlQuery query;
         query.addQueryItem("name", text);
         WarptenCli *cli = new WarptenCli(this);
-        connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateNewPlaylist(WarptenCli*)));
+        connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updateNewPlaylist(WarptenCli*)));
         cli->execute("POST", "/playlist/add", query);
     }
 }
@@ -146,7 +146,7 @@ void MainWindow::requestVersion()
 {
     QUrlQuery query;
     WarptenCli *cli = new WarptenCli(this);
-    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateVersion(WarptenCli*)));
+    connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updateVersion(WarptenCli*)));
     cli->execute("GET", "/version", query);
 }
 
@@ -169,7 +169,7 @@ void MainWindow::requestPlaylists()
 {
     QUrlQuery query;
     WarptenCli *cli = new WarptenCli(this);
-    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updatePlaylists(WarptenCli*)));
+    connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updatePlaylists(WarptenCli*)));
     cli->execute("GET", "/playlists", query);
 }
 
@@ -237,7 +237,7 @@ void MainWindow::requestCloseTab(int index)
     query.addQueryItem("uuid", tab->getUuid());
     query.addQueryItem("index", QString::number(index));
     WarptenCli *cli = new WarptenCli(this);
-    connect(cli, SIGNAL(on_execution_finished(WarptenCli*)), this, SLOT(updateCloseTab(WarptenCli*)));
+    connect(cli, SIGNAL(onExecutionFinished(WarptenCli*)), this, SLOT(updateCloseTab(WarptenCli*)));
     cli->execute("POST", "/playlist/del", query);
 }
 
