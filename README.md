@@ -107,13 +107,17 @@ qt客户端目前。。
 2.配置环境变量
 ```
 path加入 C:\Go\bin
-GOPATH=D:\MyProjects\GIT\AudioPlayer（代码目录要根据具体路径修改）
+GOPATH=D:\MyProjects（代码目录要根据具体路径修改）
 GOROOT=C:\Go（go安装目录要根据具体路径修改）
 ```
 
 3.打开cmd，输入go，如果出现提示语，证明已经配好go环境
 
-4.在AudioPlayer目录下建立目录src/warpten，并把所有文件与目录拷贝一份到src/warpten
+4.在D:\MyProjects下创建3个文件夹src, pkg和bin  
+进入src文件夹， 执行
+```  
+git clone https://github.com/ngacn/AudioPlayer.git warpten  
+```  
 
 5.编译warpten-daemon
 ```
