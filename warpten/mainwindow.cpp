@@ -8,7 +8,7 @@ MainWindow::MainWindow()
 {
     daemonProcess = new QProcess(this);
     QStringList args;
-    args << "-d" << "-t";
+    args << "-d";
     daemonProcess->start("warpten-daemon", args);
 
     requestVersion();
