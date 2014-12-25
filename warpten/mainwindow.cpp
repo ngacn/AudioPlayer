@@ -77,6 +77,11 @@ void MainWindow::about()
                        tr("<b>Warpten</b> v%1 is an audio player similar to foobar2000.").arg(version));
 }
 
+void MainWindow::aboutDawn()
+{
+    QMessageBox::about(this, tr("Heil Dawn"),tr("Big <font color=RED><b>Dawn</b></font> is watching you."));
+}
+
 void MainWindow::createActions()
 {
     newTrackAct = new QAction(tr("&Add file(s)"), this);
@@ -101,6 +106,10 @@ void MainWindow::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    aboutDawnAct = new QAction(tr("&Heil &Dawn"), this);
+    aboutDawnAct->setStatusTip(tr("Click to heil Dawn"));
+    connect(aboutDawnAct, SIGNAL(triggered()), this, SLOT(aboutDawn()));
 }
 
 void MainWindow::createMenus()
@@ -119,6 +128,7 @@ void MainWindow::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+    helpMenu->addAction(aboutDawnAct);
 }
 
 void MainWindow::createStatusBar()

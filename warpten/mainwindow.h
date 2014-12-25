@@ -25,6 +25,7 @@ private slots:
     void newTrack();
     void newPlaylist();
     void about();
+    void aboutDawn();
 
     void updateVersion(WarptenCli *cli);
     void updatePlaylists(WarptenCli *cli);
@@ -46,11 +47,14 @@ private:
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *helpMenu;
+
     QAction *newTrackAct;
     QAction *newPlaylistAct;
     QAction *exitAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *aboutDawnAct;
+
     QTabWidget *playlistsTabWidget;
 
     QString version;
